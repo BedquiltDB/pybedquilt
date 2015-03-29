@@ -16,6 +16,9 @@ class BedquiltClient(object):
     def collection(self, collection_name):
         return BedquiltCollection(self, collection_name)
 
+    def __getitem__(self, collection_name):
+        return self.collection(collection_name)
+
 
 class BedquiltCollection(object):
 
