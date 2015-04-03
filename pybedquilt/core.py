@@ -13,6 +13,16 @@ class BedquiltClient(object):
         else:
             raise Exception("Cannot create connection")
 
+        self._bootstrap()
+
+    def _bootstrap(self):
+        self.cursor.execute("""
+        select * from pg_catalog.pg_extension
+        where extname = 'bedquilt';
+        """)
+        result = self.cursor.fetchall()
+        assert(result is not None and len(result) > 0)
+
     def collection(self, collection_name):
         return BedquiltCollection(self, collection_name)
 
@@ -36,11 +46,16 @@ class BedquiltCollection(object):
             query_doc = {}
 
         result = self._query("""
-        select bq_find('{}', '{}')
+        select bq_find('{}', '{}');
         """.format(self.collection_name, json.dumps(query_doc)))
 
         return map(_result_row_to_dict, result)
 
+    def insert(self, doc):
+        result = self._query("""
+        select bq_insert('{}', '{}');
+        """.format(self.collection_name, json.dumps(doc)))
+        return result[0][0]
 
 # Helpers
 def _result_row_to_dict(json_row):
