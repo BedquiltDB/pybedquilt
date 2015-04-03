@@ -21,7 +21,8 @@ class BedquiltClient(object):
         where extname = 'bedquilt';
         """)
         result = self.cursor.fetchall()
-        assert(result is not None and len(result) > 0)
+        assert (result is not None and len(result) > 0), \
+            "Bedquilt extension not found on database server"
 
     def collection(self, collection_name):
         return BedquiltCollection(self, collection_name)
