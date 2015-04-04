@@ -15,6 +15,9 @@ class BedquiltClient(object):
 
         self._bootstrap()
 
+        assert self.connection is not None
+        assert self.cursor is not None
+
     def _bootstrap(self):
         self.cursor.execute("""
         select * from pg_catalog.pg_extension
@@ -46,6 +49,8 @@ class BedquiltCollection(object):
         if query_doc is None:
             query_doc = {}
 
+        assert type(query_doc) is dict
+
         result = self._query("""
         select bq_find('{}', '{}');
         """.format(self.collection_name, json.dumps(query_doc)))
@@ -53,6 +58,7 @@ class BedquiltCollection(object):
         return map(_result_row_to_dict, result)
 
     def insert(self, doc):
+        assert type(doc) is dict
         result = self._query("""
         select bq_insert('{}', '{}');
         """.format(self.collection_name, json.dumps(doc)))
