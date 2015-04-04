@@ -3,6 +3,7 @@ import os
 import getpass
 import unittest
 import json
+import pybedquilt
 
 
 # CREATE DATABASE bedquilt_test
@@ -43,3 +44,9 @@ class BedquiltTestCase(unittest.TestCase):
         self.conn = PG_CONN
         self.cur = self.conn.cursor()
         clean_database(self.conn)
+
+        self.database_name = 'bedquilt_test'
+
+    def _get_test_client(self):
+        return pybedquilt.BedquiltClient(
+            'dbname={}'.format(self.database_name))
