@@ -13,3 +13,11 @@ class TestBedquiltCollection(testutils.BedquiltTestCase):
         self.assertTrue(hasattr(coll, 'collection_name'))
         self.assertTrue(hasattr(coll, 'find'))
         self.assertTrue(hasattr(coll, 'insert'))
+
+        self.assertIsInstance(coll.client, pybedquilt.BedquiltClient)
+        self.assertEqual(coll.client, client)
+
+        self.assertEqual(coll.collection_name, 'things')
+
+        self.assertTrue(callable(coll.find))
+        self.assertTrue(callable(coll.insert))
