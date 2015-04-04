@@ -19,6 +19,7 @@ class TestBedquiltClient(testutils.BedquiltTestCase):
 
         self.assertIsInstance(coll, pybedquilt.BedquiltCollection)
         self.assertEqual(coll.collection_name, 'things')
+        self.assertTrue(coll.client is client)
 
     def test_get_collection_square_brackets(self):
         client = self._get_test_client()
@@ -28,3 +29,4 @@ class TestBedquiltClient(testutils.BedquiltTestCase):
 
         self.assertIsInstance(coll, pybedquilt.BedquiltCollection)
         self.assertEqual(coll.collection_name, 'stuff')
+        self.assertTrue(coll.client is client)
