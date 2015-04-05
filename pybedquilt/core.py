@@ -42,6 +42,7 @@ class BedquiltCollection(object):
 
     def _query(self, query_string):
         self.client.cursor.execute(query_string)
+        self.client.connection.commit()
         result = self.client.cursor.fetchall()
         return result
 
