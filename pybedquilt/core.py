@@ -2,8 +2,8 @@ import psycopg2
 import json
 
 
-def _query(client, query_string):
-    client.cursor.execute(query_string)
+def _query(client, query_string, params):
+    client.cursor.execute(query_string, params)
     #client.connection.commit()
     result = client.cursor.fetchall()
     return result
@@ -37,14 +37,14 @@ class BedquiltClient(object):
 
     def create_collection(self, collection_name):
         result = _query(self, """
-        select bq_create_collection('{}')
-        """.format(collection_name))
+        select bq_create_collection(%s)
+        """, (collection_name,))
         return result[0][0]
 
     def delete_collection(self, collection_name):
         result = _query(self, """
-        select bq_delete_collection('{}')
-        """.format(collection_name))
+        select bq_delete_collection(%s)
+        """, (collection_name,))
         return result[0][0]
 
     def collection(self, collection_name):
@@ -60,8 +60,8 @@ class BedquiltCollection(object):
         self.client = client
         self.collection_name = collection_name
 
-    def _query(self, query_string):
-        return _query(self.client, query_string)
+    def _query(self, query_string, params):
+        return _query(self.client, query_string, params)
 
     def find(self, query_doc=None):
         if query_doc is None:
@@ -69,16 +69,16 @@ class BedquiltCollection(object):
         assert type(query_doc) is dict
 
         result = self._query("""
-        select bq_find('{}', '{}');
-        """.format(self.collection_name, json.dumps(query_doc)))
+        select bq_find(%s, %s::json);
+        """, (self.collection_name, json.dumps(query_doc)))
 
         return map(_result_row_to_dict, result)
 
     def insert(self, doc):
         assert type(doc) is dict
         result = self._query("""
-        select bq_insert('{}', '{}');
-        """.format(self.collection_name, json.dumps(doc)))
+        select bq_insert(%s, %s::json);
+        """, (self.collection_name, json.dumps(doc)))
         return result[0][0]
 
 # Helpers
