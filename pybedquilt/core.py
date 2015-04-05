@@ -2,6 +2,13 @@ import psycopg2
 import json
 
 
+def _query(client, query_string):
+    client.cursor.execute(query_string)
+    client.connection.commit()
+    result = self.client.cursor.fetchall()
+    return result
+
+
 class BedquiltClient(object):
 
     def __init__(self, dsn=None):
@@ -27,6 +34,18 @@ class BedquiltClient(object):
         assert (result is not None and len(result) > 0), \
             "Bedquilt extension not found on database server"
 
+    def create_collection(self, collection_name):
+        result = _query(self, """
+        select bq_create_collection('{}')
+        """.format(collection_name))
+        return result[0][0]
+
+    def delete_collection(self, collection_name):
+        result = _query(self, """
+        select bq_delete_collection('{}')
+        """.format(collection_name))
+        return result[0][0]
+
     def collection(self, collection_name):
         return BedquiltCollection(self, collection_name)
 
@@ -41,15 +60,11 @@ class BedquiltCollection(object):
         self.collection_name = collection_name
 
     def _query(self, query_string):
-        self.client.cursor.execute(query_string)
-        self.client.connection.commit()
-        result = self.client.cursor.fetchall()
-        return result
+        return _query(self.client, query_string)
 
     def find(self, query_doc=None):
         if query_doc is None:
             query_doc = {}
-
         assert type(query_doc) is dict
 
         result = self._query("""
