@@ -4,7 +4,7 @@ import json
 
 def _query(client, query_string):
     client.cursor.execute(query_string)
-    client.connection.commit()
+    #client.connection.commit()
     result = client.cursor.fetchall()
     return result
 
@@ -16,6 +16,7 @@ class BedquiltClient(object):
         self.cursor = None
         if dsn is not None:
             self.connection = psycopg2.connect(dsn)
+            self.connection.autocommit = True
             self.cursor = self.connection.cursor()
         else:
             raise Exception("Cannot create connection")
