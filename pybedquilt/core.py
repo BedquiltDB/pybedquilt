@@ -4,7 +4,6 @@ import json
 
 def _query(client, query_string, params):
     client.cursor.execute(query_string, params)
-    #client.connection.commit()
     result = client.cursor.fetchall()
     return result
 
