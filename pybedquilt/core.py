@@ -88,12 +88,10 @@ class BedquiltCollection(object):
             return None
 
     def find_one_by_id(self, doc_id):
-        if query_doc is None:
-            query_doc = {}
-        assert type(query_doc) is dict
+        assert type(doc_id) in {str, unicode}
 
         result = self._query("""
-        select bq_find_one_by_id(%s, %s::json);
+        select bq_find_one_by_id(%s, %s);
         """, (self.collection_name, doc_id))
 
         if len(result) == 1:
@@ -112,6 +110,27 @@ class BedquiltCollection(object):
         assert type(doc) is dict
         result = self._query("""
         select bq_save(%s, %s::json);
+        """, (self.collection_name, json.dumps(doc)))
+        return result[0][0]
+
+    def remove(self, doc):
+        assert type(doc) is dict
+        result = self._query("""
+        select bq_remove(%s, %s::json);
+        """, (self.collection_name, json.dumps(doc)))
+        return result[0][0]
+
+    def remove_one(self, doc):
+        assert type(doc) is dict
+        result = self._query("""
+        select bq_remove_one(%s, %s::json);
+        """, (self.collection_name, json.dumps(doc)))
+        return result[0][0]
+
+    def remove_one_by_id(self, doc):
+        assert type(doc) is dict
+        result = self._query("""
+        select bq_remove_one_by_id(%s, %s::json);
         """, (self.collection_name, json.dumps(doc)))
         return result[0][0]
 
