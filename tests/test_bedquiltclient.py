@@ -30,3 +30,58 @@ class TestBedquiltClient(testutils.BedquiltTestCase):
         self.assertIsInstance(coll, pybedquilt.BedquiltCollection)
         self.assertEqual(coll.collection_name, 'stuff')
         self.assertTrue(coll.client is client)
+
+    def test_create_collection(self):
+        client = self._get_test_client()
+
+        result = client.create_collection('one')
+        self.assertTrue(result)
+        result = client.create_collection('one')
+        self.assertFalse(result)
+
+    def test_list_collections(self):
+        client = self._get_test_client()
+
+        # Empty
+        collections = client.list_collections()
+        self.assertEqual(len(collections), 0)
+
+        # One collection
+        client.create_collection('one')
+
+        collections = client.list_collections()
+        self.assertEqual(len(collections), 1)
+        self.assertEqual(collections, ['one'])
+
+        # Two collections
+        client.create_collection('two')
+
+        collections = client.list_collections()
+        self.assertEqual(len(collections), 2)
+        self.assertEqual(collections, ['one', 'two'])
+
+    def test_delete_collection(self):
+        client = self._get_test_client()
+
+        # Delete non-existant
+        result = client.delete_collection('non')
+        self.assertFalse(result)
+
+        # existant
+        client.create_collection('one')
+        result = client.delete_collection('one')
+        self.assertTrue(result)
+        result = client.delete_collection('one')
+        self.assertFalse(result)
+
+        names = ['one', 'two', 'three']
+
+        for name in names:
+            client.create_collection(name)
+
+        self.assertEqual(client.list_collections(), names)
+
+        for name in names:
+            client.delete_collection(name)
+
+        self.assertEqual(client.list_collections(), [])
