@@ -73,12 +73,48 @@ class BedquiltCollection(object):
 
         return map(_result_row_to_dict, result)
 
+    def find_one(self, query_doc=None):
+        if query_doc is None:
+            query_doc = {}
+        assert type(query_doc) is dict
+
+        result = self._query("""
+        select bq_find_one(%s, %s::json);
+        """, (self.collection_name, json.dumps(query_doc)))
+
+        if len(result) == 1:
+            return _result_row_to_dict(result[0])
+        else:
+            return None
+
+    def find_one_by_id(self, doc_id):
+        if query_doc is None:
+            query_doc = {}
+        assert type(query_doc) is dict
+
+        result = self._query("""
+        select bq_find_one_by_id(%s, %s::json);
+        """, (self.collection_name, doc_id))
+
+        if len(result) == 1:
+            return _result_row_to_dict(result[0])
+        else:
+            return None
+
     def insert(self, doc):
         assert type(doc) is dict
         result = self._query("""
         select bq_insert(%s, %s::json);
         """, (self.collection_name, json.dumps(doc)))
         return result[0][0]
+
+    def save(self, doc):
+        assert type(doc) is dict
+        result = self._query("""
+        select bq_save(%s, %s::json);
+        """, (self.collection_name, json.dumps(doc)))
+        return result[0][0]
+
 
 # Helpers
 def _result_row_to_dict(json_row):
