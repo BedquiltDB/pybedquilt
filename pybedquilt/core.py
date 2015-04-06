@@ -2,7 +2,9 @@ import psycopg2
 import json
 
 
-def _query(client, query_string, params):
+def _query(client, query_string, params=None):
+    if params is None:
+        params = tuple()
     client.cursor.execute(query_string, params)
     result = client.cursor.fetchall()
     return result
@@ -45,6 +47,13 @@ class BedquiltClient(object):
         select bq_delete_collection(%s)
         """, (collection_name,))
         return result[0][0]
+
+    def list_collections(self):
+        result = _query(self, """
+        select bq_list_collections();
+        """)
+
+        return map(lambda r: r[0], result)
 
     def collection(self, collection_name):
         return BedquiltCollection(self, collection_name)
@@ -135,7 +144,7 @@ class BedquiltCollection(object):
         assert type(doc_id) in {str, unicode}
         result = self._query("""
         select bq_remove_one_by_id(%s, %s);
-        """, (self.collection_name, doc_id)
+        """, (self.collection_name, doc_id))
         return result[0][0]
 
 
