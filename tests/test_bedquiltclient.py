@@ -58,7 +58,7 @@ class TestBedquiltClient(testutils.BedquiltTestCase):
 
         collections = client.list_collections()
         self.assertEqual(len(collections), 2)
-        self.assertEqual(collections, ['one', 'two'])
+        self.assertEqual(set(collections), set(['one', 'two']))
 
     def test_delete_collection(self):
         client = self._get_test_client()
