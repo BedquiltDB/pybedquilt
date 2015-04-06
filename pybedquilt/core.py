@@ -62,6 +62,7 @@ class BedquiltCollection(object):
     def _query(self, query_string, params):
         return _query(self.client, query_string, params)
 
+    # Read
     def find(self, query_doc=None):
         if query_doc is None:
             query_doc = {}
@@ -99,6 +100,7 @@ class BedquiltCollection(object):
         else:
             return None
 
+    # Create
     def insert(self, doc):
         assert type(doc) is dict
         result = self._query("""
@@ -106,6 +108,7 @@ class BedquiltCollection(object):
         """, (self.collection_name, json.dumps(doc)))
         return result[0][0]
 
+    # Update
     def save(self, doc):
         assert type(doc) is dict
         result = self._query("""
@@ -113,6 +116,7 @@ class BedquiltCollection(object):
         """, (self.collection_name, json.dumps(doc)))
         return result[0][0]
 
+    # Delete
     def remove(self, doc):
         assert type(doc) is dict
         result = self._query("""
@@ -127,11 +131,11 @@ class BedquiltCollection(object):
         """, (self.collection_name, json.dumps(doc)))
         return result[0][0]
 
-    def remove_one_by_id(self, doc):
-        assert type(doc) is dict
+    def remove_one_by_id(self, doc_id):
+        assert type(doc_id) in {str, unicode}
         result = self._query("""
-        select bq_remove_one_by_id(%s, %s::json);
-        """, (self.collection_name, json.dumps(doc)))
+        select bq_remove_one_by_id(%s, %s);
+        """, (self.collection_name, doc_id)
         return result[0][0]
 
 
