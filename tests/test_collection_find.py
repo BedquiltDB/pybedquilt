@@ -71,11 +71,11 @@ class TestFindDocuments(testutils.BedquiltTestCase):
         coll.insert(mike)
 
         # find sarah
-        result = coll.find_one_by_id('Sarah')
+        result = coll.find_one_by_id('sarah@example.com')
         self.assertEqual(result, sarah)
 
         # find mike
-        result = coll.find_one_by_id('Mike')
+        result = coll.find_one_by_id('mike@example.com')
         self.assertEqual(result, mike)
 
         # find no-one
@@ -112,7 +112,7 @@ class TestFindDocuments(testutils.BedquiltTestCase):
 
         # find matching an _id
         result = coll.find({'_id': 'jill@example.com'})
-        self.assertEqual(result, jill)
+        self.assertEqual(result, [jill])
 
         # find by match on the city field
         result = coll.find({'city': 'Glasgow'})
