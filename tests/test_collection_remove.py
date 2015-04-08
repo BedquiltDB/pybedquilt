@@ -105,9 +105,9 @@ class TestRemoveDocumnts(testutils.BedquiltTestCase):
         coll.insert(jill)
         coll.insert(darren)
 
-        result = coll.remove({'age': 33})
+        result = coll.remove({'age': 32})
 
-        self.assertEqual(result, 3)
+        self.assertEqual(result, 2)
 
         result = coll.find({})
         self.assertEqual(result,
@@ -216,52 +216,31 @@ class TestRemoveDocumnts(testutils.BedquiltTestCase):
                 'name': "Darren",
                 'city': "Manchester"}
 
-        self._insert('people', sarah)
-        self._insert('people', mike)
-        self._insert('people', jill)
-        self._insert('people', darren)
+        coll.insert(sarah)
+        coll.insert(mike)
+        coll.insert(jill)
+        coll.insert(darren)
 
         # remove an existing document
-        self.cur.execute("""
-        select bq_remove_one_by_id('people', 'jill@example.com')
-        """)
-        result = self.cur.fetchall()
+        result = coll.remove_one_by_id('jill@example.com')
+        self.assertEqual(result, 1)
 
+        result = coll.find()
         self.assertEqual(result,
                          [
-                             (1,)
+                             sarah,
+                             mike,
+                             darren
                          ])
-
-        self.cur.execute("""
-        select bq_find('people', '{}');
-        """)
-        result = self.cur.fetchall()
-        self.assertEqual(result,
-                         [
-                             (sarah,),
-                             (mike,),
-                             (darren,)
-                         ])
-
 
         # remove a document which is not in collection
-        self.cur.execute("""
-        select bq_remove_one_by_id('people', 'xxxxx')
-        """)
-        result = self.cur.fetchall()
+        result = coll.remove_one_by_id('jill@example.com')
+        self.assertEqual(result, 0)
 
+        result = coll.find()
         self.assertEqual(result,
                          [
-                             (0,)
-                         ])
-
-        self.cur.execute("""
-        select bq_find('people', '{}');
-        """)
-        result = self.cur.fetchall()
-        self.assertEqual(result,
-                         [
-                             (sarah,),
-                             (mike,),
-                             (darren,)
+                             sarah,
+                             mike,
+                             darren
                          ])
