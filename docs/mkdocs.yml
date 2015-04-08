@@ -1,1 +1,5 @@
-site_name: PyBedquilt Docs
+site_name: PyBedquilt Documentation
+theme: readthedocs
+pages:
+  - [index.md, Home]
+  - [getting_started.md, Getting Started]
