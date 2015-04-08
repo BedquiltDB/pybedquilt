@@ -1,6 +1,9 @@
 # Pybedquilt makefile
 
 
+all: build doc test
+
+
 build:
 	python setup.py build
 

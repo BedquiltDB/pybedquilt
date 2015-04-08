@@ -9,6 +9,20 @@ This document describes the Python classes available in the `pybedquilt` module.
 
 
 
+### \_\_init\_\_
+
+```
+
+        Create a BedquiltClient object, connecting to the database server.
+        Args:
+          - dsn: A psycopg2-style dsn string
+        Example:
+          - BedquiltClient("dbname=test")
+        
+```
+
+
+
 ### collection
 
 ```
@@ -22,7 +36,7 @@ This document describes the Python classes available in the `pybedquilt` module.
 
 
 
-### create_collection
+### create\_collection
 
 ```
 
@@ -36,7 +50,7 @@ This document describes the Python classes available in the `pybedquilt` module.
 
 
 
-### delete_collection
+### delete\_collection
 
 ```
 
@@ -50,7 +64,7 @@ This document describes the Python classes available in the `pybedquilt` module.
 
 
 
-### list_collections
+### list\_collections
 
 ```
 
@@ -62,6 +76,19 @@ This document describes the Python classes available in the `pybedquilt` module.
 
 
 ## BedquiltCollection
+
+
+
+### \_\_init\_\_
+
+```
+
+        Create a BedquiltCollection object.
+        Args:
+          - client: instance of BedquiltClient.
+          - collection_name: string name of collection.
+        
+```
 
 
 
@@ -78,7 +105,7 @@ This document describes the Python classes available in the `pybedquilt` module.
 
 
 
-### find_one
+### find\_one
 
 ```
 
@@ -91,7 +118,7 @@ This document describes the Python classes available in the `pybedquilt` module.
 
 
 
-### find_one_by_id
+### find\_one\_by\_id
 
 ```
 
@@ -130,7 +157,7 @@ This document describes the Python classes available in the `pybedquilt` module.
 
 
 
-### remove_one
+### remove\_one
 
 ```
 
@@ -144,7 +171,7 @@ This document describes the Python classes available in the `pybedquilt` module.
 
 
 
-### remove_one_by_id
+### remove\_one\_by\_id
 
 ```
 
