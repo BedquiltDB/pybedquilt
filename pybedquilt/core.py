@@ -14,7 +14,7 @@ class BedquiltClient(object):
 
     def __init__(self, dsn):
         """
-        Create a BedquiltClient object.
+        Create a BedquiltClient object, connecting to the database server.
         Args:
           - dsn: A psycopg2-style dsn string
         Example:
