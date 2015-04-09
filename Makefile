@@ -24,7 +24,7 @@ docs:
 	python bin/generate_docs.py && mkdocs build
 
 
-upload:
+upload: build
 	twine upload dist/*
 
 
