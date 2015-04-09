@@ -5,7 +5,7 @@ all: build docs test
 
 
 build:
-	python setup.py build
+	python setup.py bdist_wheel
 
 
 install:
@@ -25,7 +25,7 @@ docs:
 
 
 upload:
-	python setup.py upload
+	twine upload dist/*
 
 
 .PHONY: build docs test upload
