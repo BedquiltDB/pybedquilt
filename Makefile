@@ -1,7 +1,7 @@
 # Pybedquilt makefile
 
 
-all: build doc test
+all: build docs test
 
 
 build:
@@ -20,5 +20,12 @@ test:
 	python -m unittest discover tests
 
 
-doc:
+docs:
 	python bin/generate_docs.py && mkdocs build
+
+
+upload:
+	python setup.py upload
+
+
+.PHONY: build docs test upload
