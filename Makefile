@@ -16,7 +16,7 @@ develop:
 	python setup.py develop
 
 
-test:
+test: develop
 	python -m unittest discover tests
 
 
