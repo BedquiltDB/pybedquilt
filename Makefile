@@ -25,7 +25,7 @@ docs:
 
 
 upload: build
-	twine upload dist/*
+	twine upload $$(ls -r1 dist/* | head -1)
 
 
 .PHONY: build docs test upload
