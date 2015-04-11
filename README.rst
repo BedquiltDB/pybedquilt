@@ -1,7 +1,9 @@
 PyBedquilt
 ==========
 
-A Python driver for BedquiltDB.
+A Python driver for BedquiltDB_.
+
+.. _BedquiltDB: http://bedquiltdb.github.io
 
 
 Documentation
