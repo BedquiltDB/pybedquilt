@@ -12,7 +12,7 @@ def _query(client, query_string, params=None):
 
 class BedquiltClient(object):
 
-    def __init__(self, dsn):
+    def __init__(self, dsn=None, connection=None):
         """
         Create a BedquiltClient object, connecting to the database server.
         Args:
@@ -22,7 +22,11 @@ class BedquiltClient(object):
         """
         self.connection = None
         self.cursor = None
-        if dsn is not None:
+
+        if connection is not None and isinstance(connection, psycopg2._psycopg.connection):
+            self.connection = connection
+            self.cursor = self.connection.cursor()
+        elif dsn is not None and type(dsn) in {str, unicode}:
             self.connection = psycopg2.connect(dsn)
             self.connection.autocommit = True
             self.cursor = self.connection.cursor()
