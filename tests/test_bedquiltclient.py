@@ -1,5 +1,6 @@
 import pybedquilt
 import testutils
+import psycopg2
 
 
 class TestBedquiltClient(testutils.BedquiltTestCase):
@@ -7,6 +8,13 @@ class TestBedquiltClient(testutils.BedquiltTestCase):
     def test_create_client_by_dsn(self):
         client = pybedquilt.BedquiltClient(
             'dbname={}'.format(self.database_name))
+
+        self.assertIsNotNone(client)
+        self.assertTrue(hasattr(client, 'collection'))
+
+    def test_create_client_with_connection(self):
+        conn = psycopg2.connect('dbname={}'.format(self.database_name))
+        client = pybedquilt.BedquiltClient(connection=conn)
 
         self.assertIsNotNone(client)
         self.assertTrue(hasattr(client, 'collection'))
