@@ -19,6 +19,13 @@ class TestBedquiltClient(testutils.BedquiltTestCase):
         self.assertIsNotNone(client)
         self.assertTrue(hasattr(client, 'collection'))
 
+    def test_create_client_with_kwargs(self):
+        client = pybedquilt.BedquiltClient(dbname=self.database_name)
+
+        self.assertIsNotNone(client)
+        self.assertTrue(hasattr(client, 'collection'))
+
+
     def test_get_collection_function(self):
         client = self._get_test_client()
 
