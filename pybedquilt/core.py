@@ -23,7 +23,8 @@ class BedquiltClient(object):
         self.connection = None
         self.cursor = None
 
-        if connection is not None and isinstance(connection, psycopg2._psycopg.connection):
+        if (connection is not None
+            and isinstance(connection, psycopg2._psycopg.connection)):
             self.connection = connection
             self.cursor = self.connection.cursor()
         elif dsn is not None and type(dsn) in {str, unicode}:
