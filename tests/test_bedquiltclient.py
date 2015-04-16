@@ -25,7 +25,6 @@ class TestBedquiltClient(testutils.BedquiltTestCase):
         self.assertIsNotNone(client)
         self.assertTrue(hasattr(client, 'collection'))
 
-
     def test_get_collection_function(self):
         client = self._get_test_client()
 
