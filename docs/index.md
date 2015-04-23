@@ -11,6 +11,11 @@ PyBedquilt can be installed via `pip`:
 $ pip install pybedquilt
 ```
 
+## Example app
+
+See the [example web-app](https://github.com/BedquiltDB/webapp-example).
+
+
 ## Sections
 
 ### [Getting Started](getting_started.md)
