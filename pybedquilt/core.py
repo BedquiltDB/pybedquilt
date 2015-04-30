@@ -178,6 +178,18 @@ class BedquiltCollection(object):
         else:
             return None
 
+    def count(self, doc=None):
+        if doc is None:
+            doc = {}
+
+        assert type(doc) is dict
+
+        result = self._query("""
+        select bq_count(%s, %s);
+        """, (self.collection_name, json.dumps(doc)))
+
+        return result[0][0]
+
     # Create
     def insert(self, doc):
         """
