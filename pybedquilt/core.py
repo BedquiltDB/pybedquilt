@@ -178,15 +178,23 @@ class BedquiltCollection(object):
         else:
             return None
 
-    def count(self, doc=None):
-        if doc is None:
-            doc = {}
+    def count(self, query_doc=None):
+        """
+        Get a count of documents in this collection, with an optional
+        query document to match.
+        Args:
+          - query_doc: dict representing query. (optional)
+        Returns: Integer representing count of
+        documents in collection matching query
+        """
+        if query_doc is None:
+            query_doc = {}
 
-        assert type(doc) is dict
+        assert type(query_doc) is dict
 
         result = self._query("""
         select bq_count(%s, %s);
-        """, (self.collection_name, json.dumps(doc)))
+        """, (self.collection_name, json.dumps(query_doc)))
 
         return result[0][0]
 
