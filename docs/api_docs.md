@@ -92,6 +92,21 @@ This document describes the Python classes available in the `pybedquilt` module.
 
 
 
+### count
+
+```
+
+        Get a count of documents in this collection, with an optional
+        query document to match.
+        Args:
+          - query_doc: dict representing query. (optional)
+        Returns: Integer representing count of
+        documents in collection matching query
+        
+```
+
+
+
 ### find
 
 ```
