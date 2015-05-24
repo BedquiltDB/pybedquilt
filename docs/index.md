@@ -13,7 +13,7 @@ $ pip install pybedquilt
 
 ## Example app
 
-See the [example web-app](https://github.com/BedquiltDB/webapp-example).
+See the [example web-app](https://github.com/BedquiltDB/bedquilt-examples).
 
 
 ## Sections
