@@ -47,6 +47,9 @@ class BedquiltTestCase(unittest.TestCase):
 
         self.database_name = 'bedquilt_test'
 
+    def tearDown(self):
+        self.conn.rollback()
+
     def _get_test_client(self):
         return pybedquilt.BedquiltClient(
             'dbname={}'.format(self.database_name))

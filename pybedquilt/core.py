@@ -269,6 +269,26 @@ class BedquiltCollection(object):
         """, (self.collection_name, doc_id))
         return result[0][0]
 
+    def add_constraints(self, constraint_spec):
+        assert type(constraint_spec) is dict
+        result = self._query("""
+        select bq_add_constraints(%s, %s::json);
+        """, (self.collection_name, json.dumps(constraint_spec)))
+        return result[0][0]
+
+    def list_constraints(self):
+        assert type(constraint_spec) is dict
+        result = self._query("""
+        select bq_list_constraints(%s, %s::json);
+        """, (self.collection_name))
+        return map(lambda r: r[0], result)
+
+    def remove_constraints(self, constraint_spec):
+        assert type(constraint_spec) is dict
+        result = self._query("""
+        select bq_remove_constraints(%s, %s::json);
+        """, (self.collection_name, json.dumps(constraint_spec)))
+        return result[0][0]
 
 # Helpers
 def _result_row_to_dict(json_row):
