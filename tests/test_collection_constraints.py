@@ -23,11 +23,12 @@ class TestAddRequiredConstraint(testutils.BedquiltTestCase):
         self.assertEqual(result, False)
 
         # reject bad doc
-        with self.assertRaises(psycopg2.IntegrityError):
-            coll.insert({
-                '_id': 'paul@example.com',
-                'age': 20
-            })
+        self._test_save(
+            coll,
+            {'_id': 'paul@example.com',
+             'age': 20},
+            psycopg2.IntegrityError
+        )
         self.conn.rollback()
 
         # accept doc with name present and null
