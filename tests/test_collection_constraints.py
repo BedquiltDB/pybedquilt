@@ -201,32 +201,25 @@ class TestNotNullConstraint(testutils.BedquiltTestCase):
         client = self._get_test_client()
         coll = client['people']
 
-        result = coll.add_constraints({
-            'name': {'$notnull': 1}
-        })
-        self.assertEqual(True, result)
+        spec = {
+            'constraints': {'name': {'$notnull': 1}},
+            'docs': [
+                ({
+                    '_id': 'paul@example.com',
+                    'name': None
+                 },
+                 psycopg2.IntegrityError),
+                ({
+                    '_id': 'paul@example.com',
+                    'name': 'paul'
+                 },
+                 'paul@example.com'),
+                ({
+                    '_id': 'paul@example.com',
+                    'age': 20
+                 },
+                 'paul@example.com')
+            ]
+        }
 
-        # reject doc where name is set to null
-        self._test_save(
-            coll,
-            {'_id': 'paul@example.com',
-             'name': None},
-            psycopg2.IntegrityError
-        )
-
-        # accept doc where name is set to string
-        self._test_save(
-            coll,
-            {'_id': 'paul@example.com',
-             'name': 'paul'},
-            'paul@example.com'
-        )
-        coll.remove({})
-
-        # accept doc where name is not set
-        self._test_save(
-            coll,
-            {'_id': 'paul@example.com',
-             'age': 20},
-            'paul@example.com'
-        )
+        _test_constraint(self, coll, spec)
