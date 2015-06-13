@@ -61,20 +61,20 @@ class TestAddRequiredConstraint(testutils.BedquiltTestCase):
         self.assertEqual(result, True)
 
         # reject bad doc
-        with self.assertRaises(psycopg2.IntegrityError):
-            coll.insert({
-                '_id': 'paul@example.com',
-                'age': 20
-            })
+        self._test_save(
+            coll,
+            {'_id': 'paul@example.com',
+             'age': 20},
+            psycopg2.IntegrityError
+        )
         self.conn.rollback()
 
         # accept doc with name present and set to a string value
-        self.assertEquals(
-            coll.save({
-                '_id': 'paul@example.com',
-                'name': 'Paul',
-                'age': 20
-            }),
+        self._test_save(
+            coll,
+            {'_id': 'paul@example.com',
+             'name': 'Paul',
+             'age': 20},
             'paul@example.com'
         )
 
@@ -87,20 +87,18 @@ class TestAddRequiredConstraint(testutils.BedquiltTestCase):
         })
 
         # accept previously rejected doc
-        self.assertEquals(
-            coll.save({
-                '_id': 'paul@example.com',
-                'age': 20
-            }),
+        self._test_save(
+            coll,
+            {'_id': 'paul@example.com',
+             'age': 20},
             'paul@example.com'
         )
 
         # accept doc with name present and set to a string value
-        self.assertEquals(
-            coll.save({
-                '_id': 'paul@example.com',
-                'name': 'Paul',
-                'age': 20
-            }),
+        self._test_save(
+            coll,
+            {'_id': 'paul@example.com',
+             'name': 'Paul',
+             'age': 20},
             'paul@example.com'
         )

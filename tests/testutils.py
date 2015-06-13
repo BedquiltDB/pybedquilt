@@ -4,6 +4,7 @@ import getpass
 import unittest
 import json
 import pybedquilt
+import inspect
 
 
 # CREATE DATABASE bedquilt_test
@@ -53,3 +54,13 @@ class BedquiltTestCase(unittest.TestCase):
     def _get_test_client(self):
         return pybedquilt.BedquiltClient(
             'dbname={}'.format(self.database_name))
+
+    def _test_save(self, coll, doc, expected_result):
+        if (inspect.isclass(expected_result)
+            and issubclass(expected_result, Exception)):
+            with self.assertRaises(expected_result):
+                coll.save(doc)
+            self.conn.rollback()
+        else:
+            result = coll.save(doc)
+            self.assertEqual(result, expected_result)
