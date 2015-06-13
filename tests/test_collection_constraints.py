@@ -51,6 +51,66 @@ class TestAddRequiredConstraint(testutils.BedquiltTestCase):
             'paul@example.com'
         )
 
+    def test_required_at_nested_path(self):
+        client = self._get_test_client()
+        coll = client['people']
+
+        result = coll.add_constraints({
+            'address.city': {'$required': 1}
+        })
+        self.assertEquals(True, result)
+
+        # reject doc without nested structure
+        self._test_save(
+            coll,
+            {'_id': 'paul@example.com',
+             'age': 20},
+            psycopg2.IntegrityError
+        )
+        self.conn.rollback()
+
+        # reject doc where address.city is not set
+        self._test_save(
+            coll,
+            {'_id': 'paul@example.com',
+             'age': 20,
+             'address': {
+                 'street': 'wat'
+             }},
+            psycopg2.IntegrityError
+        )
+        self.conn.rollback()
+
+        # accept doc with address.city present and null
+        self.assertEquals(
+            coll.save({
+                '_id': 'paul@example.com',
+                'name': None,
+                'age': 20,
+                'address': {
+                    'street': 'wat',
+                    'city': None
+                }
+            }),
+            'paul@example.com'
+        )
+
+        # accept doc with name present and set to a string value
+        self.assertEquals(
+            coll.save({
+                '_id': 'paul@example.com',
+                'name': 'Paul',
+                'age': 20,
+                'address': {
+                    'street': 'wat',
+                    'city': 'London'
+                }
+            }),
+            'paul@example.com'
+        )
+
+
+
     def test_removing_required_constraint(self):
         client = self._get_test_client()
         coll = client['people']
