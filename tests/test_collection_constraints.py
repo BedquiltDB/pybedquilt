@@ -11,7 +11,7 @@ def _test_constraint(test, coll, spec):
     result = coll.add_constraints(spec['constraints'])
     test.assertEqual(result, False)
 
-    for current in spec['docs']:
+    for current in spec['tests']:
         if callable(current):
             current()
             continue
@@ -28,7 +28,7 @@ class TestAddRequiredConstraint(testutils.BedquiltTestCase):
 
         spec = {
             'constraints': {'name': {'$required': 1}},
-            'docs': [
+            'tests': [
                 ({
                     '_id': 'paul@example.com',
                     'age': 20
@@ -56,7 +56,7 @@ class TestAddRequiredConstraint(testutils.BedquiltTestCase):
 
         spec = {
             'constraints': {'address.city': {'$required': 1}},
-            'docs': [
+            'tests': [
                 ({
                     '_id': 'paul@example.com',
                     'age': 20
@@ -100,7 +100,7 @@ class TestAddRequiredConstraint(testutils.BedquiltTestCase):
 
         spec = {
             'constraints': {'addresses.0.city': {'$required': 1}},
-            'docs': [
+            'tests': [
                 ({
                     '_id': 'paul@example.com',
                     'age': 20
@@ -152,7 +152,7 @@ class TestAddRequiredConstraint(testutils.BedquiltTestCase):
 
         spec = {
             'constraints': {'name': {'$required': 1}},
-            'docs': [
+            'tests': [
                 ({
                     '_id': 'paul@example.com',
                     'age': 20
@@ -191,7 +191,7 @@ class TestNotNullConstraint(testutils.BedquiltTestCase):
 
         spec = {
             'constraints': {'name': {'$notnull': 1}},
-            'docs': [
+            'tests': [
                 ({
                     '_id': 'paul@example.com',
                     'name': None
