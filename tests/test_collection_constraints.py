@@ -11,7 +11,12 @@ def _test_constraint(test, coll, spec):
     result = coll.add_constraints(spec['constraints'])
     test.assertEqual(result, False)
 
-    for data, expected_result in spec['docs']:
+    for current in spec['docs']:
+        if callable(current):
+            current()
+            continue
+        data = current[0]
+        expected_result = current[1]
         test._test_save(coll, data, expected_result)
 
 
@@ -145,54 +150,37 @@ class TestAddRequiredConstraint(testutils.BedquiltTestCase):
         client = self._get_test_client()
         coll = client['people']
 
-        # add the constraint
-        result = coll.add_constraints({
-            'name': {'$required': 1}
-        })
-        self.assertEqual(result, True)
-
-        # reject bad doc
-        self._test_save(
-            coll,
-            {'_id': 'paul@example.com',
-             'age': 20},
-            psycopg2.IntegrityError
-        )
-        self.conn.rollback()
-
-        # accept doc with name present and set to a string value
-        self._test_save(
-            coll,
-            {'_id': 'paul@example.com',
-             'name': 'Paul',
-             'age': 20},
-            'paul@example.com'
-        )
-
-        # clear the collection
-        coll.remove({})
-
-        # remove constraints
-        coll.remove_constraints({
-            'name': {'$required': 1}
-        })
-
-        # accept previously rejected doc
-        self._test_save(
-            coll,
-            {'_id': 'paul@example.com',
-             'age': 20},
-            'paul@example.com'
-        )
-
-        # accept doc with name present and set to a string value
-        self._test_save(
-            coll,
-            {'_id': 'paul@example.com',
-             'name': 'Paul',
-             'age': 20},
-            'paul@example.com'
-        )
+        spec = {
+            'constraints': {'name': {'$required': 1}},
+            'docs': [
+                ({
+                    '_id': 'paul@example.com',
+                    'age': 20
+                 },
+                 psycopg2.IntegrityError),
+                ({
+                    '_id': 'paul@example.com',
+                    'name': 'Paul',
+                    'age': 20
+                 },
+                 'paul@example.com'),
+                lambda: coll.remove({}),
+                lambda: coll.remove_constraints({
+                    'name': {'$required': 1}}),
+                ({
+                    '_id': 'paul@example.com',
+                    'age': 20
+                 },
+                 'paul@example.com'),
+                ({
+                    '_id': 'paul@example.com',
+                    'name': 'Paul',
+                    'age': 20
+                 },
+                 'paul@example.com')
+            ]
+        }
+        _test_constraint(self, coll, spec)
 
 
 class TestNotNullConstraint(testutils.BedquiltTestCase):
