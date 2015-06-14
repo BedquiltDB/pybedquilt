@@ -437,3 +437,53 @@ class TestTypeConstraint(testutils.BedquiltTestCase):
         }
 
         _test_constraint(self, coll, spec)
+
+
+class TestListConstraints(testutils.BedquiltTestCase):
+
+    def test_list_constraints_when_no_constraints(self):
+        coll = self._get_test_client()['people']
+
+        result = coll.list_constraints()
+        self.assertEqual(result, [])
+
+    def test_list_constraints_when_one_constraint(self):
+        coll = self._get_test_client()['people']
+
+        coll.add_constraints({'name': {'$required': 1}})
+
+        result = coll.list_constraints()
+        self.assertEqual(result, ['name:required'])
+
+    def test_list_constraints_when_realistic_constraint(self):
+        coll = self._get_test_client()['people']
+
+        coll.add_constraints({
+            'name': {'$required': 1,
+                     '$notnull': 1,
+                     '$type': 'string'},
+            'age': {'$required': 1,
+                    '$type': 'number'},
+            'address': {'$required': 1,
+                        '$type': 'object'},
+            'address.city': {'$required': 1,
+                             '$type': 'string'}
+        })
+
+        result = coll.list_constraints()
+        self.assertEqual(len(result), 9)
+
+        self.assertEqual(
+            sorted(result),
+            sorted([
+                'name:required',
+                'name:notnull',
+                'name:type:string',
+                'age:required',
+                'age:type:number',
+                'address:required',
+                'address:type:object',
+                'address_city:required',
+                'address_city:type:string'
+            ])
+        )
