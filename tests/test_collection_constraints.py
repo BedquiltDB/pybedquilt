@@ -298,3 +298,119 @@ class TestNotNullConstraint(testutils.BedquiltTestCase):
         }
 
         _test_constraint(self, coll, spec)
+
+class TestTypeConstraint(testutils.BedquiltTestCase):
+
+    def test_simple_type_constraint(self):
+        client = self._get_test_client()
+        coll = client['people']
+
+        spec = {
+            'constraints': {'name': {'$type': 'string'}},
+            'tests': [
+                ({
+                    '_id': 'paul@example.com',
+                    'name': 42
+                 },
+                 psycopg2.IntegrityError),
+                ({
+                    '_id': 'paul@example.com',
+                    'name': 'paul'
+                 },
+                 'paul@example.com'),
+                ({
+                    '_id': 'paul@example.com',
+                    'age': 20
+                 },
+                 'paul@example.com')
+            ]
+        }
+
+        _test_constraint(self, coll, spec)
+
+    def test_type_on_nested_path(self):
+        client = self._get_test_client()
+        coll = client['people']
+
+        spec = {
+            'constraints': {'address.city': {'$type': 'string'}},
+            'tests': [
+                ({
+                    '_id': 'paul@example.com',
+                    'name': None
+                 },
+                 'paul@example.com'),
+                ({
+                    '_id': 'paul@example.com',
+                    'name': 'paul',
+                    'address': {
+                        'street': 'wat'
+                    }
+                 },
+                 'paul@example.com'),
+                ({
+                    '_id': 'paul@example.com',
+                    'name': 'paul',
+                    'address': {
+                        'street': 'wat',
+                        'city': 'here'
+                    }
+                 },
+                 'paul@example.com'),
+                ({
+                    '_id': 'paul@example.com',
+                    'name': 'paul',
+                    'address': {
+                        'street': 'wat',
+                        'city': 42
+
+                    }
+                 },
+                 psycopg2.IntegrityError),
+            ]
+        }
+
+        _test_constraint(self, coll, spec)
+
+    def test_type_on_nested_array_path(self):
+        client = self._get_test_client()
+        coll = client['people']
+
+        spec = {
+            'constraints': {'addresses.0.city': {'$type': 'string'}},
+            'tests': [
+                ({
+                    '_id': 'paul@example.com',
+                    'name': None
+                 },
+                 'paul@example.com'),
+                ({
+                    '_id': 'paul@example.com',
+                    'name': 'paul',
+                    'addresses':[
+                        {'street': 'wat'}
+                    ]
+                 },
+                 'paul@example.com'),
+                ({
+                    '_id': 'paul@example.com',
+                    'name': 'paul',
+                    'addresses':[
+                        {'street': 'wat',
+                         'city': 'here'}
+                    ]
+                 },
+                 'paul@example.com'),
+                ({
+                    '_id': 'paul@example.com',
+                    'name': 'paul',
+                    'addresses':[
+                        {'street': 'wat',
+                         'city': 42}
+                    ]
+                 },
+                 psycopg2.IntegrityError),
+            ]
+        }
+
+        _test_constraint(self, coll, spec)
