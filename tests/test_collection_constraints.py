@@ -483,7 +483,7 @@ class TestListConstraints(testutils.BedquiltTestCase):
                 'age:type:number',
                 'address:required',
                 'address:type:object',
-                'address_city:required',
-                'address_city:type:string'
+                'address.city:required',
+                'address.city:type:string'
             ])
         )
