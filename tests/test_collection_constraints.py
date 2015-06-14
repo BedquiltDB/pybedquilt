@@ -439,6 +439,44 @@ class TestTypeConstraint(testutils.BedquiltTestCase):
         _test_constraint(self, coll, spec)
 
 
+class TestRemoveConstraints(testutils.BedquiltTestCase):
+
+    def test_remove_constraint_which_is_absent(self):
+        coll = self._get_test_client()['people']
+
+        result = coll.remove_constraints({'name': {'$required': 1}})
+
+        self.assertEqual(result, False)
+
+    def test_add_and_remove_constraint(self):
+        coll = self._get_test_client()['people']
+
+        result = coll.add_constraints({'name': {'$required': 1}})
+        self.assertEqual(result, True)
+
+        doc = {
+            '_id': 'abc',
+            'wat': 1
+        }
+        with self.assertRaises(psycopg2.IntegrityError):
+            coll.insert(doc)
+
+        self.assertEqual(
+            coll.list_constraints(),
+            ['name:required']
+        )
+
+        result = coll.remove_constraints({'name': {'$required': 1}})
+        self.assertEqual(result, True)
+
+        result = coll.insert(doc)
+        self.assertEqual(result, 'abc')
+
+        self.assertEqual(
+            coll.list_constraints(),
+            []
+        )
+
 class TestListConstraints(testutils.BedquiltTestCase):
 
     def test_list_constraints_when_no_constraints(self):
