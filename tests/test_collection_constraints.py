@@ -255,3 +255,46 @@ class TestNotNullConstraint(testutils.BedquiltTestCase):
         }
 
         _test_constraint(self, coll, spec)
+
+    def test_notnull_on_nested_array_path(self):
+        client = self._get_test_client()
+        coll = client['people']
+
+        spec = {
+            'constraints': {'addresses.0.city': {'$notnull': 1}},
+            'tests': [
+                ({
+                    '_id': 'paul@example.com',
+                    'name': None
+                 },
+                 'paul@example.com'),
+                ({
+                    '_id': 'paul@example.com',
+                    'name': 'paul',
+                    'addresses':[
+                        {'street': 'wat'}
+                    ]
+                 },
+                 'paul@example.com'),
+                ({
+                    '_id': 'paul@example.com',
+                    'name': 'paul',
+                    'addresses':[
+                        {'street': 'wat',
+                         'city': 'here'}
+                    ]
+                 },
+                 'paul@example.com'),
+                ({
+                    '_id': 'paul@example.com',
+                    'name': 'paul',
+                    'addresses':[
+                        {'street': 'wat',
+                         'city': None}
+                    ]
+                 },
+                 psycopg2.IntegrityError),
+            ]
+        }
+
+        _test_constraint(self, coll, spec)
