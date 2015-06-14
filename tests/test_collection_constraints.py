@@ -320,6 +320,11 @@ class TestTypeConstraint(testutils.BedquiltTestCase):
                  'paul@example.com'),
                 ({
                     '_id': 'paul@example.com',
+                    'name': None
+                 },
+                 'paul@example.com'),
+                ({
+                    '_id': 'paul@example.com',
                     'age': 20
                  },
                  'paul@example.com')
@@ -354,6 +359,15 @@ class TestTypeConstraint(testutils.BedquiltTestCase):
                     'address': {
                         'street': 'wat',
                         'city': 'here'
+                    }
+                 },
+                 'paul@example.com'),
+                ({
+                    '_id': 'paul@example.com',
+                    'name': 'paul',
+                    'address': {
+                        'street': 'wat',
+                        'city': None
                     }
                  },
                  'paul@example.com'),
@@ -398,6 +412,15 @@ class TestTypeConstraint(testutils.BedquiltTestCase):
                     'addresses':[
                         {'street': 'wat',
                          'city': 'here'}
+                    ]
+                 },
+                 'paul@example.com'),
+                ({
+                    '_id': 'paul@example.com',
+                    'name': 'paul',
+                    'addresses':[
+                        {'street': 'wat',
+                         'city': None}
                     ]
                  },
                  'paul@example.com'),
