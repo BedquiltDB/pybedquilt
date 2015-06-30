@@ -55,8 +55,10 @@ class BedquiltClient(object):
         where extname = 'bedquilt';
         """)
         result = self.cursor.fetchall()
+
         assert (result is not None and len(result) > 0), \
             "Bedquilt extension not found on database server"
+
         ext = result[0]
         version = ext[4]
         assert (version >= MIN_SERVER_VERSION or version == 'HEAD'), \
