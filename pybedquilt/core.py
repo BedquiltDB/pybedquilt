@@ -2,6 +2,9 @@ import psycopg2
 import json
 
 
+MIN_SERVER_VERSION = '0.2.0'
+
+
 def _query(client, query_string, params=None):
     if params is None:
         params = tuple()
@@ -54,6 +57,11 @@ class BedquiltClient(object):
         result = self.cursor.fetchall()
         assert (result is not None and len(result) > 0), \
             "Bedquilt extension not found on database server"
+        ext = result[0]
+        version = ext[4]
+        assert version >= MIN_SERVER_VERSION, \
+            "Bedquilt extension on server is out of date (version {})," \
+            " requires at least {}".format(version, MIN_SERVER_VERSION)
 
     def create_collection(self, collection_name):
         """
