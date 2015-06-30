@@ -59,7 +59,7 @@ class BedquiltClient(object):
             "Bedquilt extension not found on database server"
         ext = result[0]
         version = ext[4]
-        assert version >= MIN_SERVER_VERSION, \
+        assert (version >= MIN_SERVER_VERSION or version == 'HEAD'), \
             "Bedquilt extension on server is out of date (version {})," \
             " requires at least {}".format(version, MIN_SERVER_VERSION)
 
