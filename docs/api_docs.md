@@ -95,7 +95,13 @@ This document describes the Python classes available in the `pybedquilt` module.
 ### add\_constraints
 
 ```
-None
+
+        Add constraints to this collection.
+        Args:
+          - constraint_spec: dict describing constraints to add
+        Returns: boolean, indicating whether any of the constraint
+        rules were applied.
+        
 ```
 
 
@@ -170,7 +176,10 @@ None
 ### list\_constraints
 
 ```
-None
+
+        List all constraints on this collection.
+        Returns: list of strings.
+        
 ```
 
 
@@ -191,7 +200,13 @@ None
 ### remove\_constraints
 
 ```
-None
+
+        Remove constraints to this collection.
+        Args:
+          - constraint_spec: dict describing constraints to be removed
+        Returns: boolean, indicating whether any of the constraint
+        rules were removed.
+        
 ```
 
 
