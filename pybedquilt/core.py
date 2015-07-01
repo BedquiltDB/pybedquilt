@@ -280,6 +280,13 @@ class BedquiltCollection(object):
         return result[0][0]
 
     def add_constraints(self, constraint_spec):
+        """
+        Add constraints to this collection.
+        Args:
+          - constraint_spec: dict describing constraints to add
+        Returns: boolean, indicating whether any of the constraint
+        rules were applied.
+        """
         assert type(constraint_spec) is dict
         result = self._query("""
         select bq_add_constraints(%s, %s::json);
@@ -287,12 +294,23 @@ class BedquiltCollection(object):
         return result[0][0]
 
     def list_constraints(self):
+        """
+        List all constraints on this collection.
+        Returns: list of strings.
+        """
         result = self._query("""
         select bq_list_constraints(%s);
         """, (self.collection_name,))
         return map(lambda r: r[0], result)
 
     def remove_constraints(self, constraint_spec):
+        """
+        Remove constraints to this collection.
+        Args:
+          - constraint_spec: dict describing constraints to be removed
+        Returns: boolean, indicating whether any of the constraint
+        rules were removed.
+        """
         assert type(constraint_spec) is dict
         result = self._query("""
         select bq_remove_constraints(%s, %s::json);
