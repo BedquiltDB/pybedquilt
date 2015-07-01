@@ -92,6 +92,14 @@ This document describes the Python classes available in the `pybedquilt` module.
 
 
 
+### add\_constraints
+
+```
+None
+```
+
+
+
 ### count
 
 ```
@@ -159,6 +167,14 @@ This document describes the Python classes available in the `pybedquilt` module.
 
 
 
+### list\_constraints
+
+```
+None
+```
+
+
+
 ### remove
 
 ```
@@ -168,6 +184,14 @@ This document describes the Python classes available in the `pybedquilt` module.
           - query_doc: dictionary representing the query to match documents to remove.
         Returns: integer number of documents removed.
         
+```
+
+
+
+### remove\_constraints
+
+```
+None
 ```
 
 

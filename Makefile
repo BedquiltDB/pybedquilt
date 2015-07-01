@@ -21,7 +21,7 @@ test: develop
 
 
 docs:
-	python bin/generate_docs.py && mkdocs build
+	python bin/generate_docs.py && mkdocs build --clean
 
 
 upload: build
