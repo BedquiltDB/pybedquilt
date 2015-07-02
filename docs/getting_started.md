@@ -68,6 +68,68 @@ a random one will be generated on the server. The `_id` field must be unique for
 all documents in the collection.
 
 
+## Adding Constraints
+
+Right now our `people` collection is completely un-structured. The `insert`
+function will accept a document of any structure and happily add it to the
+collection, even if it doesn't make sense to do so. For example, we could
+add an blog-post to the `people` collection like this:
+
+```python
+>>> people.insert({
+...    '_id': 'a-cool-article',
+...    'title': 'A Cool Article',
+...    'content': '...',
+...    'tags': ['coolness', 'awesome']
+... })
+```
+
+Or, we could do something silly and insert a document which looks like a person,
+but is still wrong:
+
+```python
+>>> people.insert({
+...    'name': None,
+...    'age': 'Elaine',
+...    'city': ["board games", "cider", "owls"],
+...    'lol': 'wtf',
+...    'likes': {
+...        'street': 'Mill Lane',
+...        'city': None
+...    }
+... })
+```
+
+Many NoSQL databases behave in the same way. On the one hand, this makes
+it easy to work with loosely structured data. On the other hand, it makes it
+too easy to add bad data to the collection, which can be very difficult to
+deal with later on.
+
+With BedquiltDB we can add constraints to collections, which allow us to specify
+a set of checks to be performed on incoming data. If any of the checks fail
+then the document will be rejected and not saved to the collection.
+
+Lets add some constraints to our `people` collection:
+
+```
+>>> people.add_constraints({
+...     'name': {'$required': 1,
+...              '$notnull': 1,
+...              '$type': 'string'},
+...     'age': {'$required': 1,
+...             '$type': 'number'},
+...     'city': {'$type': 'string'},
+...     'likes': {'$required': 1,
+...               '$type': 'array'}
+... })
+```
+
+Now, when we try to insert garbage data into the `people` collection,
+the bad data will be rejected, and an exception raised to tell us about
+how silly we've been.
+
+
+
 ## Finding Data
 
 With a few (well, two) documents in our `people` collection, we can then query the
