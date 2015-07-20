@@ -5,12 +5,23 @@ import json
 MIN_SERVER_VERSION = '0.3.0'
 
 
-def _query(client, query_string, params=None):
+def _query(cursor, query_string, params=None):
     if params is None:
         params = tuple()
-    client.cursor.execute(query_string, params)
-    result = client.cursor.fetchall()
+    cursor.execute(query_string, params)
+    result = cursor.fetchall()
     return result
+
+
+class BedquiltCursor(object):
+    def __init__(self, collection):
+        self.collection = collection
+    def __iter__(self):
+        return self
+
+    def next(self):
+        pass
+    pass
 
 
 class BedquiltClient(object):
@@ -24,45 +35,41 @@ class BedquiltClient(object):
           - BedquiltClient("dbname=test")
         """
         self.connection = None
-        self.cursor = None
 
         if (connection is not None
             and isinstance(connection, psycopg2._psycopg.connection)):
             self.connection = connection
-            self.cursor = self.connection.cursor()
         elif dsn is not None and type(dsn) in {str, unicode}:
             self.connection = psycopg2.connect(dsn)
-            self.connection.autocommit = True
-            self.cursor = self.connection.cursor()
         elif kwargs:
             self.connection = psycopg2.connect(**kwargs)
-            self.connection.autocommit = True
-            self.cursor = self.connection.cursor()
         else:
             raise Exception("Cannot create connection")
+
+        self.connection.autocommit = True
 
         self._bootstrap()
 
         assert self.connection is not None
-        assert self.cursor is not None
 
     def _bootstrap(self):
         """
         Do whatever needs to be done to bootstrap/initialize the client.
         """
-        self.cursor.execute("""
+        cursor = self.connection.cursor()
+        cursor.execute("""
         select * from pg_catalog.pg_extension
         where extname = 'bedquilt';
         """)
-        result = self.cursor.fetchall()
+        result = cursor.fetchall()
 
         assert (result is not None and len(result) > 0), \
             "Bedquilt extension not found on database server"
 
-        self.cursor.execute("""
+        cursor.execute("""
         select bq_assert_minimum_version('{}')
         """.format(MIN_SERVER_VERSION))
-        _ = self.cursor.fetchall()
+        _ = cursor.fetchall()
 
     def create_collection(self, collection_name):
         """
@@ -72,7 +79,7 @@ class BedquiltClient(object):
         Returns:
           - Boolean representing whether the collection was created or not.
         """
-        result = _query(self, """
+        result = _query(self.connection.cursor(), """
         select bq_create_collection(%s)
         """, (collection_name,))
         return result[0][0]
@@ -85,7 +92,7 @@ class BedquiltClient(object):
         Returns:
           - Boolean representing whether the collection was deleted or not.
         """
-        result = _query(self, """
+        result = _query(self.connection.cursor(), """
         select bq_delete_collection(%s)
         """, (collection_name,))
         return result[0][0]
@@ -96,7 +103,7 @@ class BedquiltClient(object):
         Args: None
         Returns: List of string names of collections.
         """
-        result = _query(self, """
+        result = _query(self.connection.cursor(), """
         select bq_list_collections();
         """)
 
@@ -126,9 +133,10 @@ class BedquiltCollection(object):
         """
         self.client = client
         self.collection_name = collection_name
+        self.cursor = client.connection.cursor()
 
     def _query(self, query_string, params):
-        return _query(self.client, query_string, params)
+        return _query(self.cursor, query_string, params)
 
     # Read
     def find(self, query_doc=None):
