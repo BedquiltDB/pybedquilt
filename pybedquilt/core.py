@@ -14,14 +14,20 @@ def _query(cursor, query_string, params=None):
 
 
 class BedquiltCursor(object):
-    def __init__(self, collection):
+    def __init__(self, collection, query, params):
         self.collection = collection
+        self.cursor = collection.client.connection.cursor()
+        self.cursor.execute(query, params)
+
     def __iter__(self):
         return self
 
     def next(self):
-        pass
-    pass
+        n = self.cursor.fetchone()
+        if n:
+            return _result_row_to_dict(n)
+        else:
+            raise StopIteration
 
 
 class BedquiltClient(object):
@@ -150,11 +156,9 @@ class BedquiltCollection(object):
             query_doc = {}
         assert type(query_doc) is dict
 
-        result = self._query("""
+        return BedquiltCursor(self, """
         select bq_find(%s, %s::json);
         """, (self.collection_name, json.dumps(query_doc)))
-
-        return map(_result_row_to_dict, result)
 
     def find_one(self, query_doc=None):
         """

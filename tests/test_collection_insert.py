@@ -72,7 +72,7 @@ class TestInsertDocument(testutils.BedquiltTestCase):
         self.assertIsNotNone(result)
         self.assertTrue(type(result) in {str, unicode})
 
-        self.assertEqual(len(result), 24)
+        self.assertEqual(len(list(result)), 24)
         for character in result:
             self.assertIn(character, string.hexdigits)
 
@@ -94,4 +94,4 @@ class TestInsertDocument(testutils.BedquiltTestCase):
             result = coll.insert(doc)
 
         result = coll.find()
-        self.assertEqual(len(result), 1)
+        self.assertEqual(len(list(result)), 1)

@@ -112,24 +112,24 @@ class TestFindDocuments(testutils.BedquiltTestCase):
 
         # find matching an _id
         result = coll.find({'_id': 'jill@example.com'})
-        self.assertEqual(result, [jill])
+        self.assertEqual(list(result), [jill])
 
         # find by match on the city field
         result = coll.find({'city': 'Glasgow'})
-        self.assertEqual(result, [sarah, jill])
+        self.assertEqual(list(result), [sarah, jill])
 
         result = coll.find({'city': 'Edinburgh'})
-        self.assertEqual(result, [mike])
+        self.assertEqual(list(result), [mike])
 
         result = coll.find({'city': 'Manchester'})
-        self.assertEqual(result, [darren])
+        self.assertEqual(list(result), [darren])
 
         result = coll.find({'city': 'New York'})
-        self.assertEqual(result, [])
+        self.assertEqual(list(result), [])
 
         # find all
         result = coll.find()
-        self.assertEqual(result,
+        self.assertEqual(list(result),
                          [
                              sarah,
                              mike,

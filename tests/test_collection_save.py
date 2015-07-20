@@ -13,7 +13,7 @@ class TestSaveDocuments(testutils.BedquiltTestCase):
         _ = coll.save({"_id": "aaa", "a": 1})
 
         self.assertEqual(
-            coll.find(),
+            list(coll.find()),
             [{'_id': 'aaa', 'a': 1}])
 
     def test_save_with_no_id(self):
@@ -27,7 +27,7 @@ class TestSaveDocuments(testutils.BedquiltTestCase):
         }
         coll.save(doc)
 
-        result = coll.find()
+        result = list(coll.find())
 
         self.assertEqual(len(result), 1)
         d = result[0]
@@ -52,7 +52,7 @@ class TestSaveDocuments(testutils.BedquiltTestCase):
         coll.insert(dud)
         coll.insert(doc)
 
-        result = coll.find()
+        result = list(coll.find())
         self.assertEqual(result,
                          [
                              dud,
@@ -65,7 +65,7 @@ class TestSaveDocuments(testutils.BedquiltTestCase):
 
         coll.save(doc)
 
-        result = coll.find()
+        result = list(coll.find())
         self.assertEqual(result,
                          [
                              dud,
@@ -79,7 +79,7 @@ class TestSaveDocuments(testutils.BedquiltTestCase):
 
         coll.save(doc)
 
-        result = coll.find()
+        result = list(coll.find())
         self.assertEqual(result,
                          [
                              dud,

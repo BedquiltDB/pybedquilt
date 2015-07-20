@@ -69,7 +69,7 @@ class TestRemoveDocumnts(testutils.BedquiltTestCase):
 
         self.assertEqual(result, 1)
 
-        result = coll.find({})
+        result = list(coll.find({}))
         self.assertEqual(result,
                          [
                              mike,
@@ -109,7 +109,7 @@ class TestRemoveDocumnts(testutils.BedquiltTestCase):
 
         self.assertEqual(result, 2)
 
-        result = coll.find({})
+        result = list(coll.find({}))
         self.assertEqual(result,
                          [
                              sarah,
@@ -148,7 +148,7 @@ class TestRemoveDocumnts(testutils.BedquiltTestCase):
         result = coll.remove_one({'age': 32})
         self.assertEqual(result, 1)
 
-        result = coll.find()
+        result = list(coll.find({}))
         self.assertEqual(result,
                          [
                              sarah,
@@ -160,7 +160,7 @@ class TestRemoveDocumnts(testutils.BedquiltTestCase):
         result = coll.remove_one({'name': 'Darren'})
         self.assertEqual(result, 1)
 
-        result = coll.find()
+        result = list(coll.find({}))
         self.assertEqual(result,
                          [
                              sarah,
@@ -171,7 +171,7 @@ class TestRemoveDocumnts(testutils.BedquiltTestCase):
         result = coll.remove({'_id': 'jill@example.com'})
         self.assertEqual(result, 1)
 
-        result = coll.find()
+        result = list(coll.find({}))
         self.assertEqual(result,
                          [
                              sarah
@@ -225,7 +225,7 @@ class TestRemoveDocumnts(testutils.BedquiltTestCase):
         result = coll.remove_one_by_id('jill@example.com')
         self.assertEqual(result, 1)
 
-        result = coll.find()
+        result = list(coll.find({}))
         self.assertEqual(result,
                          [
                              sarah,
@@ -237,7 +237,7 @@ class TestRemoveDocumnts(testutils.BedquiltTestCase):
         result = coll.remove_one_by_id('jill@example.com')
         self.assertEqual(result, 0)
 
-        result = coll.find()
+        result = list(coll.find({}))
         self.assertEqual(result,
                          [
                              sarah,
