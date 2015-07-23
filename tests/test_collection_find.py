@@ -2,6 +2,7 @@ import testutils
 import json
 import string
 import psycopg2
+import pybedquilt
 
 
 class TestFindDocuments(testutils.BedquiltTestCase):
@@ -128,11 +129,23 @@ class TestFindDocuments(testutils.BedquiltTestCase):
         self.assertEqual(list(result), [])
 
         # find all
-        result = coll.find()
-        self.assertEqual(list(result),
+        result = list(coll.find())
+        self.assertEqual(result,
                          [
                              sarah,
                              mike,
                              jill,
                              darren,
                          ])
+
+
+        # find streaming
+        result = coll.find()
+        self.assertEqual(type(result), pybedquilt.BedquiltCursor)
+        count = 0
+        for doc in result:
+            count += 1
+            self.assertIsNotNone(doc)
+            self.assertEqual(type(doc), dict)
+
+        self.assertEqual(count, 4)
