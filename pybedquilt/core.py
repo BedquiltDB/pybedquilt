@@ -2,7 +2,7 @@ import psycopg2
 import json
 
 
-MIN_SERVER_VERSION = '0.3.0'
+MIN_SERVER_VERSION = '0.3.1'
 
 
 def _query(cursor, query_string, params=None):
