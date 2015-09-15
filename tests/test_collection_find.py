@@ -239,9 +239,16 @@ class TestFindWithSort(testutils.BedquiltTestCase):
 
         # seed data
         docs = []
-        for x in range(100):
+        for x in range(50):
             docs.append({
                 '_id': str(random.random())[2:],
+                'color': 'red',
+                'n': x
+            })
+        for x in range(50, 100):
+            docs.append({
+                '_id': str(random.random())[2:],
+                'color': 'blue',
                 'n': x
             })
         random.shuffle(docs)
@@ -270,4 +277,24 @@ class TestFindWithSort(testutils.BedquiltTestCase):
         nums = map(lambda x: x['n'], result)
         self.assertEqual(nums, [
             97, 96, 95, 94, 93
+        ])
+
+        # descending, no skip, limit 3
+        result = coll.find(sort={'n': -1}, limit=3)
+        nums = map(lambda x: x['n'], result)
+        self.assertEqual(nums, [
+            99, 98, 97
+        ])
+
+        # only blue, ascending
+        result = coll.find({'color': 'blue'}, sort={'n': 1})
+        nums = map(lambda x: x['n'], result)
+        self.assertEqual(nums, sorted(nums))
+        self.assertEqual(len(nums), 50)
+
+        # only blue, descecnding, skip 10, limit 2
+        result = coll.find(sort={'n': -1}, skip=10, limit=2)
+        nums = map(lambda x: x['n'], result)
+        self.assertEqual(nums, [
+            89, 88
         ])
