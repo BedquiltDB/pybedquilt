@@ -145,7 +145,7 @@ class BedquiltCollection(object):
         return _query(self.cursor, query_string, params)
 
     # Read
-    def find(self, query_doc=None):
+    def find(self, query_doc=None, skip=0, limit=None, sort=None):
         """
         Find documents in collection.
         Args:
@@ -157,8 +157,8 @@ class BedquiltCollection(object):
         assert type(query_doc) is dict
 
         return BedquiltCursor(self, """
-        select bq_find(%s, %s::json);
-        """, (self.collection_name, json.dumps(query_doc)))
+        select bq_find(%s, %s::json, %s, %s, %s::jsonb);
+        """, (self.collection_name, json.dumps(query_doc), skip, limit, sort))
 
     def find_one(self, query_doc=None):
         """

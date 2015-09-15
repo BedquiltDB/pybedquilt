@@ -19,11 +19,11 @@ class TestFindDocuments(testutils.BedquiltTestCase):
         ]
 
         for q in queries:
-            # find_one
-            result = coll.find_one(q)
-            self.assertEqual(result, None)
-
             # find
+            result = coll.find(q)
+            self.assertEqual(list(result), [])
+
+            # find_one
             result = coll.find_one(q)
             self.assertEqual(result, None)
 
@@ -149,3 +149,66 @@ class TestFindDocuments(testutils.BedquiltTestCase):
             self.assertEqual(type(doc), dict)
 
         self.assertEqual(count, 4)
+
+
+class TestFindWithSkipAndLimit(testutils.BedquiltTestCase):
+
+    def test_on_empty_collection(self):
+        client = self._get_test_client()
+        coll = client['people']
+
+        queries = [
+            {},
+            {"likes": ["icecream"]},
+            {"name": "Mike"},
+            {"_id": "mike"}
+        ]
+
+        for q in queries:
+            # find_one
+            result = coll.find(q, skip=1, limit=2)
+            self.assertEqual(list(result), [])
+
+    def test_find_existing_documents(self):
+        client = self._get_test_client()
+        coll = client['people']
+
+        sarah = {'_id': "sarah@example.com",
+                 'name': "Sarah",
+                 'city': "Glasgow",
+                 'age': 34,
+                 'likes': ['icecream', 'cats']}
+        mike = {'_id': "mike@example.com",
+                'name': "Mike",
+                'city': "Edinburgh",
+                'age': 32,
+                'likes': ['cats', 'crochet']}
+        jill = {'_id': "jill@example.com",
+                'name': "Jill",
+                'city': "Glasgow",
+                'age': 32,
+                'likes': ['code', 'crochet']}
+        darren = {'_id': "darren@example.com",
+                'name': "Darren",
+                'city': "Manchester"}
+
+        coll.insert(sarah)
+        coll.insert(mike)
+        coll.insert(jill)
+        coll.insert(darren)
+
+        # find with limit
+        result = coll.find({}, limit=2)
+        self.assertEqual(list(result), [sarah, mike])
+
+        # find with skip and limit
+        result = coll.find({}, skip=1, limit=2)
+        self.assertEqual(list(result), [mike, jill])
+
+        # only skip
+        result = coll.find({}, skip=2)
+        self.assertEqual(list(result), [jill, darren])
+
+        # limit with a query
+        result = coll.find({'city': 'Glasgow'}, limit=1)
+        self.assertEqual(list(result), [sarah])
