@@ -3,6 +3,7 @@ import json
 import string
 import psycopg2
 import pybedquilt
+import random
 
 
 class TestFindDocuments(testutils.BedquiltTestCase):
@@ -212,3 +213,61 @@ class TestFindWithSkipAndLimit(testutils.BedquiltTestCase):
         # limit with a query
         result = coll.find({'city': 'Glasgow'}, limit=1)
         self.assertEqual(list(result), [sarah])
+
+
+class TestFindWithSort(testutils.BedquiltTestCase):
+
+    def test_on_empty_collection(self):
+        client = self._get_test_client()
+        coll = client['people']
+
+        queries = [
+            {},
+            {"likes": ["icecream"]},
+            {"name": "Mike"},
+            {"_id": "mike"}
+        ]
+
+        for q in queries:
+            # find_one
+            result = coll.find(q, sort={'age': 1})
+            self.assertEqual(list(result), [])
+
+    def test_find_existing_documents_with_sort(self):
+        client = self._get_test_client()
+        coll = client['people']
+
+        # seed data
+        docs = []
+        for x in range(100):
+            docs.append({
+                '_id': str(random.random())[2:],
+                'n': x
+            })
+        random.shuffle(docs)
+        for doc in docs:
+            coll.insert(doc)
+
+        # with sort ascending on n
+        result = coll.find(sort={'n': 1})
+        nums = map(lambda x: x['n'], result)
+        self.assertEqual(nums, sorted(nums))
+
+        # with sort descending on n
+        result = coll.find(sort={'n': -1})
+        nums = map(lambda x: x['n'], result)
+        self.assertEqual(nums, sorted(nums, reverse=True))
+
+        # ascending, skip 2, limit 5
+        result = coll.find(sort={'n': 1}, skip=2, limit=5)
+        nums = map(lambda x: x['n'], result)
+        self.assertEqual(nums, [
+            2, 3, 4, 5, 6
+        ])
+
+        # descending, skip 2, limit 5
+        result = coll.find(sort={'n': -1}, skip=2, limit=5)
+        nums = map(lambda x: x['n'], result)
+        self.assertEqual(nums, [
+            97, 96, 95, 94, 93
+        ])

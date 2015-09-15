@@ -156,9 +156,14 @@ class BedquiltCollection(object):
             query_doc = {}
         assert type(query_doc) is dict
 
+        if sort is not None:
+            assert type(sort) is dict
+            sort = json.dumps(sort)
+
         return BedquiltCursor(self, """
         select bq_find(%s, %s::json, %s, %s, %s::jsonb);
-        """, (self.collection_name, json.dumps(query_doc), skip, limit, sort))
+        """, (self.collection_name, json.dumps(query_doc),
+              skip, limit, sort))
 
     def find_one(self, query_doc=None):
         """
