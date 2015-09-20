@@ -161,7 +161,7 @@ class BedquiltCollection(object):
             sort = json.dumps(sort)
 
         return BedquiltCursor(self, """
-        select bq_find(%s, %s::json, %s, %s, %s::jsonb);
+        select bq_find(%s, %s::json, %s, %s, %s::json);
         """, (self.collection_name, json.dumps(query_doc),
               skip, limit, sort))
 
