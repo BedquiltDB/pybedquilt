@@ -157,7 +157,7 @@ class BedquiltCollection(object):
         assert type(query_doc) is dict
 
         if sort is not None:
-            assert type(sort) is dict
+            assert type(sort) is list
             sort = json.dumps(sort)
 
         return BedquiltCursor(self, """

@@ -230,7 +230,7 @@ class TestFindWithSort(testutils.BedquiltTestCase):
 
         for q in queries:
             # find_one
-            result = coll.find(q, sort={'age': 1})
+            result = coll.find(q, sort=[{'age': 1}])
             self.assertEqual(list(result), [])
 
     def test_find_existing_documents_with_sort(self):
@@ -256,44 +256,44 @@ class TestFindWithSort(testutils.BedquiltTestCase):
             coll.insert(doc)
 
         # with sort ascending on n
-        result = coll.find(sort={'n': 1})
+        result = coll.find(sort=[{'n': 1}])
         nums = map(lambda x: x['n'], result)
         self.assertEqual(nums, sorted(nums))
 
         # with sort descending on n
-        result = coll.find(sort={'n': -1})
+        result = coll.find(sort=[{'n': -1}])
         nums = map(lambda x: x['n'], result)
         self.assertEqual(nums, sorted(nums, reverse=True))
 
         # ascending, skip 2, limit 5
-        result = coll.find(sort={'n': 1}, skip=2, limit=5)
+        result = coll.find(sort=[{'n': 1}], skip=2, limit=5)
         nums = map(lambda x: x['n'], result)
         self.assertEqual(nums, [
             2, 3, 4, 5, 6
         ])
 
         # descending, skip 2, limit 5
-        result = coll.find(sort={'n': -1}, skip=2, limit=5)
+        result = coll.find(sort=[{'n': -1}], skip=2, limit=5)
         nums = map(lambda x: x['n'], result)
         self.assertEqual(nums, [
             97, 96, 95, 94, 93
         ])
 
         # descending, no skip, limit 3
-        result = coll.find(sort={'n': -1}, limit=3)
+        result = coll.find(sort=[{'n': -1}], limit=3)
         nums = map(lambda x: x['n'], result)
         self.assertEqual(nums, [
             99, 98, 97
         ])
 
         # only blue, ascending
-        result = coll.find({'color': 'blue'}, sort={'n': 1})
+        result = coll.find({'color': 'blue'}, sort=[{'n': 1}])
         nums = map(lambda x: x['n'], result)
         self.assertEqual(nums, sorted(nums))
         self.assertEqual(len(nums), 50)
 
         # only blue, descecnding, skip 10, limit 2
-        result = coll.find(sort={'n': -1}, skip=10, limit=2)
+        result = coll.find(sort=[{'n': -1}], skip=10, limit=2)
         nums = map(lambda x: x['n'], result)
         self.assertEqual(nums, [
             89, 88
