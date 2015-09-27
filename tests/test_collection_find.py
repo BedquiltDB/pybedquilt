@@ -233,6 +233,55 @@ class TestFindWithSort(testutils.BedquiltTestCase):
             result = coll.find(q, sort=[{'age': 1}])
             self.assertEqual(list(result), [])
 
+    def test_sort_on_two_fields(self):
+        client = self._get_test_client()
+        coll = client['people']
+
+        sarah = {'_id': "sarah@example.com",
+                 'name': "Sarah",
+                 'city': "Glasgow",
+                 'age': 34,
+                 'likes': ['icecream', 'cats']}
+        mike = {'_id': "mike@example.com",
+                'name': "Mike",
+                'city': "Edinburgh",
+                'age': 32,
+                'likes': ['cats', 'crochet']}
+        jill = {'_id': "jill@example.com",
+                'name': "Jill",
+                'city': "Glasgow",
+                'age': 32,
+                'likes': ['code', 'crochet']}
+        darren = {'_id': "darren@example.com",
+                'name': "Darren",
+                'age': 20,
+                'city': "Manchester"}
+
+        coll.insert(sarah)
+        coll.insert(mike)
+        coll.insert(jill)
+        coll.insert(darren)
+
+        # age ascending, name ascending
+        result = coll.find(sort=[{'age': 1}, {'name': 1}])
+        names = map(lambda x: x['name'], result)
+        self.assertEqual(names, ['Darren', 'Jill', 'Mike', 'Sarah'])
+
+        # age descending, name ascending
+        result = coll.find(sort=[{'age': -1}, {'name': 1}])
+        names = map(lambda x: x['name'], result)
+        self.assertEqual(names, ['Sarah', 'Jill', 'Mike', 'Darren'])
+
+        # age ascending, name descending
+        result = coll.find(sort=[{'age': 1}, {'name': -1}])
+        names = map(lambda x: x['name'], result)
+        self.assertEqual(names, ['Darren', 'Mike', 'Jill', 'Sarah'])
+
+        # age descending, name descending
+        result = coll.find(sort=[{'age': -1}, {'name': -1}])
+        names = map(lambda x: x['name'], result)
+        self.assertEqual(names, ['Sarah', 'Mike', 'Jill', 'Darren'])
+
     def test_find_existing_documents_with_sort(self):
         client = self._get_test_client()
         coll = client['people']
