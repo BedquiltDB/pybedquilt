@@ -128,7 +128,10 @@ This document describes the Python classes available in the `pybedquilt` module.
         Find documents in collection.
         Args:
           - query_doc: dict representing query.
-        Returns: List of dictionaries.
+          - skip: integer number of documents to skip (default 0).
+          - limit: integer number of documents to limit result set to (default None).
+          - sort: list of dict, representing sort specification.
+        Returns: BedquiltCursor
         
 ```
 

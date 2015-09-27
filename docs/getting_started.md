@@ -132,31 +132,95 @@ how silly we've been.
 
 ## Finding Data
 
-With a few (well, two) documents in our `people` collection, we can then query the
+With a few documents in our `people` collection, we can then query the
 collection and see what comes back:
 ```
 >>> people.find({'city': "Edinburgh"})
+<pybedquilt.core.BedquiltCursor at 0x1038b7690>
+```
+
+The `find` method returns a `BedquiltCursor`, an object which represents a stream
+of results coming from the server. The cursor is lazy, so no results are fetched
+from the server until we ask for them, by consuming the cursor. Let's use the
+python `list` function on the cursor and see what happens:
+```
+>>> list( people.find({'city': "Edinburgh"}) )
 [{'_id': 'sarah@example.com', ....}, {'_id': 'cabb5c9f6a55ecdebbc42c69', ...}]
 ```
 
 In this case we get a list of two documents back, corresponding to the two
 people who live in Edinburgh, `sarah` and `elaine`.
 
-The first (and only) argument to the `find` method is a query dictionary. A document
+We could also have written a `for` loop to consume the cursor:
+```
+>>> for doc in people.find({'city': "Edinburgh"}):
+...     print doc['name']
+```
+
+Or any other way one would usually consume a generator in python.
+
+----
+
+The first argument to the `find` method is a query dictionary. A document
 matches the query if its contents are a superset of the query data. In our example,
 we're basically saying `"find documents where the city field is 'Edinburgh"`.
 
 We can also query on the contents of nested JSON data structures, for example if
 we wanted to get all documents where the person likes "code":
 ```
->>> people.find({'likes': ['code']})
+>>> list( people.find({'likes': ['code']}) )
 [ {...}, {...} ]
 ```
 
 That query returns the two documents for `sarah` and `dave`.
 
-We can also limit the result set to a single document matching our query by using
-`find_one` method:
+If we omit the query document, then no filter is applied to the query, we just
+get back all the documents in the collection:
+```
+>>> list( people.find() )
+```
+
+We can also apply a sort to the stream of documents we receive, say, by the
+`age` field, in ascending order:
+```
+>>> people.find({'likes' :['code']}, sort=[{'age': 1}])
+```
+
+Nah, let's sort by `name`, but in descending order:
+```
+>>> people.find({'likes' :['code']}, sort=[{'name': -1}])
+```
+
+Even better, let's sort by `age` descending, then by `name` ascending:
+```
+>>> people.find({'likes' :['code']}, sort=[{'age': -1}, {'name': 1}])
+```
+
+We can limit the results to an arbitrary number of documents:
+```
+>>> people.find({'likes' :['code']}, limit=4)
+```
+
+And we can skip over the first `n` results:
+```
+>>> people.find({'likes' :['code']}, skip=2)
+```
+
+In fact, we can do all of these at once, or in any combination:
+```
+>>> people.find(
+...  {'likes' :['code']},
+...  skip=4,
+...  limit=5,
+...  sort=[{'age': -1}, {'name': 1}])
+```
+
+The `skip`, `limit` and `sort` options are pretty powerful.
+
+----
+
+If we know we are only interested in a single document, we can limit the result
+set to a single document matching our query by using the `find_one` method:
 ```
 >>> people.find_one({'likes': ['code']})
 {'_id': 'sarah@example.com' ...}
@@ -168,6 +232,7 @@ directly, using `find_one_by_id`:
 >>> people.find_one_by_id('sarah@example.com')
 {'_id': 'sarah@example.com', 'name': 'Sarah Jones'...}
 ```
+
 
 ## Updating Existing Documents
 
