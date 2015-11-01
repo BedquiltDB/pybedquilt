@@ -99,3 +99,21 @@ class TestBedquiltClient(testutils.BedquiltTestCase):
             client.delete_collection(name)
 
         self.assertEqual(client.list_collections(), [])
+
+    def test_collection_exists(self):
+        client = self._get_test_client()
+
+        result = client.collection_exists('things')
+        self.assertFalse(result)
+
+        result = client.create_collection('things')
+        self.assertTrue(result)
+
+        result = client.collection_exists('things')
+        self.assertTrue(result)
+
+        result = client.delete_collection('things')
+        self.assertTrue(result)
+
+        result = client.collection_exists('things')
+        self.assertFalse(result)

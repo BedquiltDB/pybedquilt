@@ -115,6 +115,18 @@ class BedquiltClient(object):
 
         return map(lambda r: r[0], result)
 
+    def collection_exists(self, collection_name):
+        """
+        Check if a collection exists.
+        Args:
+          - collection_name: string name of collection.
+        Returns: Boolean
+        """
+        result = _query(self.connection.cursor(), """
+        select bq_collection_exists(%s)
+        """, (collection_name,))
+        return result[0][0]
+
     def collection(self, collection_name):
         """
         Get a BedquiltCollection object.
