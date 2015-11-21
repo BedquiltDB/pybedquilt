@@ -25,7 +25,7 @@ class BedquiltCursor(object):
     def next(self):
         n = self.cursor.fetchone()
         if n:
-            return _result_row_to_dict(n)
+            return _unpack_row(n)
         else:
             raise StopIteration
 
@@ -196,7 +196,7 @@ class BedquiltCollection(object):
         """, (self.collection_name, json.dumps(query_doc)))
 
         if len(result) == 1:
-            return _result_row_to_dict(result[0])
+            return _unpack_row(result[0])
         else:
             return None
 
@@ -215,7 +215,7 @@ class BedquiltCollection(object):
         """, (self.collection_name, doc_id))
 
         if len(result) == 1:
-            return _result_row_to_dict(result[0])
+            return _unpack_row(result[0])
         else:
             return None
 
@@ -238,6 +238,20 @@ class BedquiltCollection(object):
         """, (self.collection_name, json.dumps(query_doc)))
 
         return result[0][0]
+
+    def distinct(self, key_path):
+        """
+        Get a sequence of the distinct values in this collection,
+        at the specified key-path.
+        Args:
+          - key_path: string specifying the key to look up
+        Returns: BedquiltCursor
+        """
+        assert type(key_path) in {str, unicode}
+
+        return BedquiltCursor(self, """
+        select bq_distinct(%s, %s);
+        """, (self.collection_name, key_path))
 
     # Create
     def insert(self, doc):
@@ -349,7 +363,7 @@ class BedquiltCollection(object):
         return result[0][0]
 
 # Helpers
-def _result_row_to_dict(json_row):
+def _unpack_row(json_row):
     if len(json_row) != 1:
         raise Exception("something wrong with row: {}".format(json_row))
     return json_row[0]
