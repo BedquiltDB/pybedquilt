@@ -246,6 +246,7 @@ class BedquiltCollection(object):
         Args:
           - key_path: string specifying the key to look up
         Returns: BedquiltCursor
+        Example: collection.distinct('address.city')
         """
         assert type(key_path) in {str, unicode}
 
