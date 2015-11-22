@@ -36,6 +36,19 @@ This document describes the Python classes available in the `pybedquilt` module.
 
 
 
+### collection\_exists
+
+```
+
+        Check if a collection exists.
+        Args:
+          - collection_name: string name of collection.
+        Returns: Boolean
+        
+```
+
+
+
 ### create\_collection
 
 ```
@@ -116,6 +129,21 @@ This document describes the Python classes available in the `pybedquilt` module.
           - query_doc: dict representing query. (optional)
         Returns: Integer representing count of
         documents in collection matching query
+        
+```
+
+
+
+### distinct
+
+```
+
+        Get a sequence of the distinct values in this collection,
+        at the specified key-path.
+        Args:
+          - key_path: string specifying the key to look up
+        Returns: BedquiltCursor
+        Example: collection.distinct('address.city')
         
 ```
 
