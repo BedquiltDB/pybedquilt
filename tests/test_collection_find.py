@@ -84,6 +84,51 @@ class TestFindDocuments(testutils.BedquiltTestCase):
         result = coll.find_one_by_id('XXXXX')
         self.assertEqual(result, None)
 
+    def test_many_by_ids(self):
+        client = self._get_test_client()
+        coll = client['people']
+        sarah = {'_id': "sarah@example.com",
+                 'name': "Sarah",
+                 'age': 34,
+                 'likes': ['icecream', 'cats']}
+        mike = {'_id': "mike@example.com",
+                'name': "Mike",
+                'age': 32,
+                'likes': ['cats', 'crochet']}
+        jim = {'_id': "jim@example.com",
+                'name': "Jim",
+                'age': 32,
+                'likes': ['fishing', 'crochet']}
+
+        coll.insert(sarah)
+        coll.insert(mike)
+        coll.insert(jim)
+
+        # sarah and jim
+        result = list(
+            coll.find_many_by_ids(['sarah@example.com', 'jim@example.com'])
+        )
+        self.assertEqual(result, [sarah, jim])
+
+        # sarah and mike
+        result = list(
+            coll.find_many_by_ids(['sarah@example.com', 'mike@example.com'])
+        )
+        self.assertEqual(result, [sarah, mike])
+
+        # mike and no-one
+        result = list(
+            coll.find_many_by_ids(['no-one', 'mike@example.com'])
+        )
+        self.assertEqual(result, [mike])
+
+        # no match
+        result = list(
+            coll.find_many_by_ids(['wat'])
+        )
+        self.assertEqual(result, [])
+
+
     def test_find_existing_documents(self):
         client = self._get_test_client()
         coll = client['people']
