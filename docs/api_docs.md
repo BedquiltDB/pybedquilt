@@ -165,6 +165,19 @@ This document describes the Python classes available in the `pybedquilt` module.
 
 
 
+### find\_many\_by\_ids
+
+```
+
+        Find several documents in a collection by their `_id` values.
+        Args:
+          - ids: list of strings to match against '_id' fields.
+        Returns: An instance of BedquiltCursor
+        
+```
+
+
+
 ### find\_one
 
 ```
