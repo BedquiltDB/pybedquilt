@@ -8,8 +8,8 @@ A Python driver for BedquiltDB_.
 Installation
 ============
 
-To install pybedquilt from pip:
-    $ pip install pybedquilt
+To install pybedquilt from pip::
+   $ pip install pybedquilt
 
 
 Documentation
