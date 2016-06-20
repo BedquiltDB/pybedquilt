@@ -5,6 +5,12 @@ A Python driver for BedquiltDB_.
 
 .. _BedquiltDB: http://bedquiltdb.github.io
 
+Installation
+============
+
+To install pybedquilt from pip:
+    $ pip install pybedquilt
+
 
 Documentation
 =============
