@@ -104,7 +104,7 @@ class TestFindDocuments(testutils.BedquiltTestCase):
                 'age': 32,
                 'likes': ['code', 'crochet']}
         darren = {'_id': "darren@example.com",
-                'name': "Darren",
+                'name': "Darren O'Reilly",
                 'city': "Manchester"}
 
         coll.insert(sarah)
@@ -128,6 +128,9 @@ class TestFindDocuments(testutils.BedquiltTestCase):
 
         result = coll.find({'city': 'New York'})
         self.assertEqual(list(result), [])
+
+        result = coll.find({'name': "Darren O'Reilly"})
+        self.assertEqual(list(result), [darren])
 
         # find all
         result = list(coll.find())
