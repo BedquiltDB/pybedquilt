@@ -5,23 +5,23 @@ all: build docs test
 
 
 build:
-	python setup.py bdist_wheel
+	python2 setup.py bdist_wheel
 
 
 install:
-	python setup.py install
+	python2 setup.py install
 
 
 develop:
-	python setup.py develop
+	python2 setup.py develop
 
 
 test: develop
-	python -m unittest discover tests
+	python2 -m unittest discover tests
 
 
 docs:
-	python bin/generate_docs.py && mkdocs build --clean
+	python2 bin/generate_docs.py && mkdocs build --clean
 
 
 upload: build
