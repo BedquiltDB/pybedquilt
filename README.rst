@@ -1,7 +1,7 @@
 PyBedquilt
 ==========
 
-A Python driver for BedquiltDB_.
+A Python2/3 driver for BedquiltDB_.
 
 .. _BedquiltDB: http://bedquiltdb.github.io
 
@@ -22,11 +22,11 @@ Tests
 =====
 
 First, ensure there is a postgresql database running with bedquiltdb installed
-on a "bedquilt_test" database, then run::
+on a "bedquilt_test" database, then once a suitable python environment is set up, run::
    $ make test
 
 
-Development prerequisites
+Development and Test prerequisites
 =========================
 
 - Python >= 2.7
