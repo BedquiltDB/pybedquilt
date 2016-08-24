@@ -267,22 +267,22 @@ class TestFindWithSort(testutils.BedquiltTestCase):
 
         # age ascending, name ascending
         result = coll.find(sort=[{'age': 1}, {'name': 1}])
-        names = map(lambda x: x['name'], result)
+        names = list(map(lambda x: x['name'], result))
         self.assertEqual(names, ['Darren', 'Jill', 'Mike', 'Sarah'])
 
         # age descending, name ascending
         result = coll.find(sort=[{'age': -1}, {'name': 1}])
-        names = map(lambda x: x['name'], result)
+        names = list(map(lambda x: x['name'], result))
         self.assertEqual(names, ['Sarah', 'Jill', 'Mike', 'Darren'])
 
         # age ascending, name descending
         result = coll.find(sort=[{'age': 1}, {'name': -1}])
-        names = map(lambda x: x['name'], result)
+        names = list(map(lambda x: x['name'], result))
         self.assertEqual(names, ['Darren', 'Mike', 'Jill', 'Sarah'])
 
         # age descending, name descending
         result = coll.find(sort=[{'age': -1}, {'name': -1}])
-        names = map(lambda x: x['name'], result)
+        names = list(map(lambda x: x['name'], result))
         self.assertEqual(names, ['Sarah', 'Mike', 'Jill', 'Darren'])
 
     def test_find_existing_documents_with_sort(self):
@@ -309,44 +309,44 @@ class TestFindWithSort(testutils.BedquiltTestCase):
 
         # with sort ascending on n
         result = coll.find(sort=[{'n': 1}])
-        nums = map(lambda x: x['n'], result)
+        nums = list(map(lambda x: x['n'], result))
         self.assertEqual(nums, sorted(nums))
 
         # with sort descending on n
         result = coll.find(sort=[{'n': -1}])
-        nums = map(lambda x: x['n'], result)
+        nums = list(map(lambda x: x['n'], result))
         self.assertEqual(nums, sorted(nums, reverse=True))
 
         # ascending, skip 2, limit 5
         result = coll.find(sort=[{'n': 1}], skip=2, limit=5)
-        nums = map(lambda x: x['n'], result)
+        nums = list(map(lambda x: x['n'], result))
         self.assertEqual(nums, [
             2, 3, 4, 5, 6
         ])
 
         # descending, skip 2, limit 5
         result = coll.find(sort=[{'n': -1}], skip=2, limit=5)
-        nums = map(lambda x: x['n'], result)
+        nums = list(map(lambda x: x['n'], result))
         self.assertEqual(nums, [
             97, 96, 95, 94, 93
         ])
 
         # descending, no skip, limit 3
         result = coll.find(sort=[{'n': -1}], limit=3)
-        nums = map(lambda x: x['n'], result)
+        nums = list(map(lambda x: x['n'], result))
         self.assertEqual(nums, [
             99, 98, 97
         ])
 
         # only blue, ascending
         result = coll.find({'color': 'blue'}, sort=[{'n': 1}])
-        nums = map(lambda x: x['n'], result)
+        nums = list(map(lambda x: x['n'], result))
         self.assertEqual(nums, sorted(nums))
         self.assertEqual(len(nums), 50)
 
         # only blue, descecnding, skip 10, limit 2
         result = coll.find(sort=[{'n': -1}], skip=10, limit=2)
-        nums = map(lambda x: x['n'], result)
+        nums = list(map(lambda x: x['n'], result))
         self.assertEqual(nums, [
             89, 88
         ])

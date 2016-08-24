@@ -2,6 +2,7 @@ import testutils
 import json
 import string
 import psycopg2
+import six
 
 
 class TestInsertDocument(testutils.BedquiltTestCase):
@@ -70,7 +71,7 @@ class TestInsertDocument(testutils.BedquiltTestCase):
         result = coll.insert(doc)
 
         self.assertIsNotNone(result)
-        self.assertTrue(type(result) in {str, unicode})
+        self.assertTrue(isinstance(result, six.string_types))
 
         self.assertEqual(len(list(result)), 24)
         for character in result:

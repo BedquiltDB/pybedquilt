@@ -4,7 +4,7 @@ import string
 import psycopg2
 
 
-class TestCollectionCount(testutils.BedquiltTestCase):
+class TestCollectionDistinct(testutils.BedquiltTestCase):
 
     def test_on_empty_collection(self):
         client = self._get_test_client()
@@ -38,8 +38,8 @@ class TestCollectionCount(testutils.BedquiltTestCase):
 
         result = coll.distinct('age')
         self.assertEqual(
-            sorted(list(result)),
-            sorted([22, 30, 38, None])
+            set(list(result)),
+            set([22, 30, 38, None])
         )
 
     def test_distinct_on_dotted_path(self):

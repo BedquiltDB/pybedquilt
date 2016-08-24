@@ -1,5 +1,6 @@
 import psycopg2
 import json
+import six
 
 
 MIN_SERVER_VERSION = '0.4.0'
@@ -29,6 +30,13 @@ class BedquiltCursor(object):
         else:
             raise StopIteration
 
+    def __next__(self):
+        n = self.cursor.fetchone()
+        if n:
+            return _unpack_row(n)
+        else:
+            raise StopIteration
+
 
 class BedquiltClient(object):
 
@@ -45,7 +53,7 @@ class BedquiltClient(object):
         if (connection is not None
             and isinstance(connection, psycopg2._psycopg.connection)):
             self.connection = connection
-        elif dsn is not None and type(dsn) in {str, unicode}:
+        elif dsn is not None and isinstance(dsn, six.string_types):
             self.connection = psycopg2.connect(dsn)
         elif kwargs:
             self.connection = psycopg2.connect(**kwargs)
@@ -113,7 +121,7 @@ class BedquiltClient(object):
         select bq_list_collections();
         """)
 
-        return map(lambda r: r[0], result)
+        return list(map(lambda r: r[0], result))
 
     def collection_exists(self, collection_name):
         """
@@ -208,7 +216,7 @@ class BedquiltCollection(object):
         Returns: A dictionary if found, or None.
         """
 
-        assert type(doc_id) in {str, unicode}
+        assert isinstance(doc_id, six.string_types)
 
         result = self._query("""
         select bq_find_one_by_id(%s, %s);
@@ -248,7 +256,7 @@ class BedquiltCollection(object):
         Returns: BedquiltCursor
         Example: collection.distinct('address.city')
         """
-        assert type(key_path) in {str, unicode}
+        assert isinstance(key_path, six.string_types)
 
         return BedquiltCursor(self, """
         select bq_distinct(%s, %s);
@@ -319,7 +327,7 @@ class BedquiltCollection(object):
           - doc_id: string _id of the document to remove.
         Returns: integer number of documents removed.
         """
-        assert type(doc_id) in {str, unicode}
+        assert isinstance(doc_id, six.string_types)
         result = self._query("""
         select bq_remove_one_by_id(%s, %s);
         """, (self.collection_name, doc_id))
@@ -347,7 +355,7 @@ class BedquiltCollection(object):
         result = self._query("""
         select bq_list_constraints(%s);
         """, (self.collection_name,))
-        return map(lambda r: r[0], result)
+        return list(map(lambda r: r[0], result))
 
     def remove_constraints(self, constraint_spec):
         """
