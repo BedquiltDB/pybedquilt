@@ -13,7 +13,11 @@ CREATE EXTENSION bedquilt;
 
 Then, install the pybedquilt libary:
 ```
+# python2
 $ pip install pybedquilt
+
+# python3
+$ pip3 install pybedquilt
 ```
 
 
