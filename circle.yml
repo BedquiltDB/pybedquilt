@@ -21,7 +21,7 @@ dependencies:
 database:
   override:
     - createdb bedquilt_test
-    - cd /tmp; rm -rf bedquilt-core; git clone git@github.com:BedquiltDB/bedquilt-core.git; cd bedquilt-core; sudo make install-head;
+    - cd /tmp; rm -rf bedquilt-core; git clone git@github.com:BedquiltDB/bedquilt-core.git -b $CIRCLE_BRANCH; cd bedquilt-core; sudo make install-head;
     - sudo psql -d bedquilt_test -c "create extension if not exists pgcrypto;create extension if not exists plpython3u; drop extension if exists bedquilt; create extension bedquilt;
 
 test:
