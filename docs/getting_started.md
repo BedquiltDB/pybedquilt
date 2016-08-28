@@ -262,3 +262,17 @@ people.remove({'cool': False})
 people.remove_one({'likes': ['cabbage']})
 people.remove_one_by_id('magic_man@example.com')
 ```
+
+
+## Using Raw SQL
+
+The BedquiltClient object has a `connection` property, which is a [psycopg2](http://pythonhosted.org/psycopg2/index.html) connection (spoiler warning: pybedquilt uses psycopg2 internally). You can use the connection to execute arbitrary SQL commands:
+
+```
+cur = client.connection.cursor()
+cur.execute("select 1;")
+cur.fetchall()  # => [(1,)]
+
+cur.execute("select bq_find_one_by_id('users', 'joe@example.com')")
+cur.fetchall()  # => [('{"_id": "joe@example.com", ...}')]
+```
