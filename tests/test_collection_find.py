@@ -16,7 +16,9 @@ class TestFindDocuments(testutils.BedquiltTestCase):
             {},
             {"likes": ["icecream"]},
             {"name": "Mike"},
-            {"_id": "mike"}
+            {"_id": "mike"},
+            {"name": {"$regex": ".*wat.*"}},
+            {"name": {"$noteq": "Mike"}}
         ]
 
         for q in queries:
@@ -51,10 +53,59 @@ class TestFindDocuments(testutils.BedquiltTestCase):
         # find mike
         result = coll.find_one({'name': 'Mike'})
         self.assertEqual(result, mike)
+        result = coll.find_one({'age': {'$eq': 32}})
+        self.assertEqual(result, mike)
 
         # find no-one
         result = coll.find_one({'name': 'XXXXX'})
         self.assertEqual(result, None)
+
+        result = coll.find_one({'name': {'$notin': ['Sarah', 'Mike']}})
+        self.assertEqual(result, None)
+
+    def test_find_one_with_skip_and_sort(self):
+        client = self._get_test_client()
+        coll = client['things']
+
+        rows = [
+            {'_id': 'a', 'n': 3, 'color': 'red'},
+            {'_id': 'b', 'n': 1, 'color': 'red'},
+            {'_id': 'c', 'n': 3, 'color': 'blue'},
+            {'_id': 'd', 'n': 2, 'color': 'blue'}
+        ]
+        for row in rows:
+            coll.save(row)
+
+        result = coll.find_one({'color': 'blue'}, sort=[{'n': 1}])
+        self.assertEqual(result['_id'], 'd')
+
+        result = coll.find_one({'color': 'blue'}, sort=[{'n': 1}], skip=1)
+        self.assertEqual(result['_id'], 'c')
+
+        result = coll.find_one({'color': 'blue'}, sort=[{'n': 1}], skip=2)
+        self.assertEqual(result, None)
+
+        result = coll.find_one({'color': 'blue'}, sort=[{'n': -1}])
+        self.assertEqual(result['_id'], 'c')
+
+        result = coll.find_one({}, sort=[{'n': 1}])
+        self.assertEqual(result['_id'], 'b')
+
+    def test_find_special_queries(self):
+        client = self._get_test_client()
+        coll = client['things']
+
+        rows = [
+            {'_id': 'a', 'n': 3, 'color': 'red'},
+            {'_id': 'b', 'n': 1, 'color': 'red'},
+            {'_id': 'c', 'n': 3, 'color': 'blue'},
+            {'_id': 'd', 'n': 2, 'color': 'blue'}
+        ]
+        for row in rows:
+            coll.save(row)
+
+        result = coll.find_one({'color': 'blue', 'n': {'$gt': 2}})
+        self.assertEqual(result['_id'], 'c')
 
     def test_find_one_by_id(self):
         client = self._get_test_client()

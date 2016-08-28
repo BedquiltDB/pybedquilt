@@ -3,7 +3,7 @@ import json
 import six
 
 
-MIN_SERVER_VERSION = '0.4.0'
+MIN_SERVER_VERSION = '2.0.0'
 
 
 def _query(cursor, query_string, params=None):
@@ -188,7 +188,7 @@ class BedquiltCollection(object):
         """, (self.collection_name, json.dumps(query_doc),
               skip, limit, sort))
 
-    def find_one(self, query_doc=None):
+    def find_one(self, query_doc=None, skip=0, sort=None):
         """
         Find a single document in collection.
         Args:
@@ -199,9 +199,14 @@ class BedquiltCollection(object):
             query_doc = {}
         assert type(query_doc) is dict
 
+        if sort is not None:
+            assert type(sort) is list
+            sort = json.dumps(sort)
+
         result = self._query("""
-        select bq_find_one(%s, %s::json);
-        """, (self.collection_name, json.dumps(query_doc)))
+        select bq_find_one(%s, %s::json, %s, %s::json);
+        """, (self.collection_name, json.dumps(query_doc),
+              skip, sort))
 
         if len(result) == 1:
             return _unpack_row(result[0])
