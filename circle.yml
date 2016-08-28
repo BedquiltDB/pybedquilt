@@ -27,3 +27,4 @@ database:
 test:
   override:
     - sudo PYTHON=$(which python3) make -e test
+    - sudo PYTHON=$(which python2) make -e test
