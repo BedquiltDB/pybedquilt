@@ -21,6 +21,7 @@ dependencies:
 database:
   override:
     - createdb bedquilt_test
+    - cd /tmp; rm -rf bedquilt-core; git clone git@github.com:BedquiltDB/bedquilt-core.git; cd bedquilt-core; sudo make install-head;
 
 test:
   override:
