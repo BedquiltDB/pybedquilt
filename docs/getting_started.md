@@ -276,3 +276,5 @@ cur.fetchall()  # => [(1,)]
 cur.execute("select bq_find_one_by_id('users', 'joe@example.com')")
 cur.fetchall()  # => [('{"_id": "joe@example.com", ...}')]
 ```
+
+Alternatively, you can `import psycopg2` yourself and use the same connection string as you used to build the `BedquiltClient` instance.
