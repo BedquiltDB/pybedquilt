@@ -20,6 +20,7 @@ develop:
 
 
 test: develop
+	echo ">> Running tests with $(PYTHON)"
 	$(PYTHON) -m unittest discover tests
 
 
