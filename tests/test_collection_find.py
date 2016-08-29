@@ -4,6 +4,7 @@ import string
 import psycopg2
 import pybedquilt
 import random
+import time
 
 
 class TestFindDocuments(testutils.BedquiltTestCase):
@@ -335,6 +336,29 @@ class TestFindWithSort(testutils.BedquiltTestCase):
         result = coll.find(sort=[{'age': -1}, {'name': -1}])
         names = list(map(lambda x: x['name'], result))
         self.assertEqual(names, ['Sarah', 'Mike', 'Jill', 'Darren'])
+
+        # age, then $created
+        result = coll.find(sort=[{'age': 1}, {'$created': 1}])
+        names = list(map(lambda x: x['name'], result))
+        self.assertEqual(names, ['Darren', 'Mike', 'Jill', 'Sarah'])
+
+        # age, then $created descending
+        result = coll.find(sort=[{'age': 1}, {'$created': -1}])
+        names = list(map(lambda x: x['name'], result))
+        self.assertEqual(names, ['Darren', 'Jill', 'Mike', 'Sarah'])
+
+        # age, then $updated descending
+        result = coll.find(sort=[{'age': 1}, {'$updated': -1}])
+        names = list(map(lambda x: x['name'], result))
+        self.assertEqual(names, ['Darren', 'Jill', 'Mike', 'Sarah'])
+        # update mike record
+        mike['wat'] = True
+        time.sleep(0.1)
+        coll.save(mike)
+        result = coll.find(sort=[{'age': 1}, {'$updated': -1}])
+        names = list(map(lambda x: x['name'], result))
+        self.assertEqual(names, ['Darren', 'Mike', 'Jill', 'Sarah'])
+
 
     def test_find_existing_documents_with_sort(self):
         client = self._get_test_client()
