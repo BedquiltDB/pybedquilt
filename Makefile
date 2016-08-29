@@ -2,7 +2,7 @@
 
 
 PYTHON=python2
-
+PYTHON_VERSION=$(shell $(PYTHON) --version)
 
 all: build docs test
 
@@ -20,7 +20,7 @@ develop:
 
 
 test: develop
-	echo ">> Running tests with" $$($(PYTHON) --version)
+	echo ">> Running tests with $(PYTHON_VERSION)"
 	$(PYTHON) -m unittest discover tests
 
 
