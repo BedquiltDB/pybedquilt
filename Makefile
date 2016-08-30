@@ -1,7 +1,7 @@
 # Pybedquilt makefile
 
 
-PYTHON=python2
+PYTHON=python
 PYTHON_VERSION=$(shell $(PYTHON) --version)
 
 all: build docs test
