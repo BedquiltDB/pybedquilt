@@ -108,6 +108,13 @@ class TestFindDocuments(testutils.BedquiltTestCase):
         result = coll.find_one({'color': 'blue', 'n': {'$gt': 2}})
         self.assertEqual(result['_id'], 'c')
 
+        result = list(coll.find({'color': {'$regex': 'bl.*'}}))
+        self.assertEqual(len(result), 2)
+        self.assertEqual(list(map(lambda d: d['_id'], result)), ['c', 'd'])
+
+        result = coll.count({'color': {'$type': 'number'}})
+        self.assertEqual(result, 0)
+
     def test_find_one_by_id(self):
         client = self._get_test_client()
         coll = client['people']
