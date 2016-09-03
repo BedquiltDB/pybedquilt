@@ -115,6 +115,24 @@ class TestFindDocuments(testutils.BedquiltTestCase):
         result = coll.count({'color': {'$type': 'number'}})
         self.assertEqual(result, 0)
 
+    def test_find_many_by_ids(self):
+        client = self._get_test_client()
+        coll = client['things']
+        rows = [
+            {'_id': 'a'},
+            {'_id': 'b'},
+            {'_id': 'c'},
+            {'_id': 'd'}
+        ]
+        for row in rows:
+            coll.insert(row)
+
+        result = list(coll.find_many_by_ids(['b', 'c', 'wat']))
+        self.assertEqual(list(map(lambda r: r['_id'], result)), ['b', 'c'])
+
+        result = list(coll.find_many_by_ids(['wat']))
+        self.assertEqual(list(map(lambda r: r['_id'], result)), [])
+
     def test_find_one_by_id(self):
         client = self._get_test_client()
         coll = client['people']

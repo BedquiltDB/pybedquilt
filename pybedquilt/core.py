@@ -232,6 +232,20 @@ class BedquiltCollection(object):
         else:
             return None
 
+    def find_many_by_ids(self, doc_ids):
+        """
+        Find many documents whose _ids are in the supplied list.
+        Args:
+          - doc_ids: list of strings to match against '_id' fields.
+        Returns: BedquiltCursor
+        Example: collection.find_many_by_ids(['one', 'two', 'four'])
+        """
+        assert type(doc_ids) == list
+
+        return BedquiltCursor(self, """
+        select bq_find_many_by_ids(%s, %s::jsonb)
+        """, (self.collection_name, json.dumps(doc_ids)))
+
     def count(self, query_doc=None):
         """
         Get a count of documents in this collection, with an optional
