@@ -81,7 +81,7 @@ class BedquiltClient(object):
             "Bedquilt extension not found on database server"
 
         cursor.execute("""
-        select bq_assert_minimum_version('{}')
+        select bq_util_assert_minimum_version('{}')
         """.format(MIN_SERVER_VERSION))
         _ = cursor.fetchall()
 
