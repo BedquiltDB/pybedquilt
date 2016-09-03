@@ -184,7 +184,7 @@ class BedquiltCollection(object):
             sort = json.dumps(sort)
 
         return BedquiltCursor(self, """
-        select bq_find(%s, %s::json, %s, %s, %s::json);
+        select bq_find(%s, %s::jsonb, %s, %s, %s::jsonb);
         """, (self.collection_name, json.dumps(query_doc),
               skip, limit, sort))
 
@@ -204,7 +204,7 @@ class BedquiltCollection(object):
             sort = json.dumps(sort)
 
         result = self._query("""
-        select bq_find_one(%s, %s::json, %s, %s::json);
+        select bq_find_one(%s, %s::jsonb, %s, %s::jsonb);
         """, (self.collection_name, json.dumps(query_doc),
               skip, sort))
 
@@ -291,7 +291,7 @@ class BedquiltCollection(object):
         """
         assert type(doc) is dict
         result = self._query("""
-        select bq_insert(%s, %s::json);
+        select bq_insert(%s, %s::jsonb);
         """, (self.collection_name, json.dumps(doc)))
         return result[0][0]
 
@@ -307,7 +307,7 @@ class BedquiltCollection(object):
         """
         assert type(doc) is dict
         result = self._query("""
-        select bq_save(%s, %s::json);
+        select bq_save(%s, %s::jsonb);
         """, (self.collection_name, json.dumps(doc)))
         return result[0][0]
 
@@ -321,7 +321,7 @@ class BedquiltCollection(object):
         """
         assert type(query_doc) is dict
         result = self._query("""
-        select bq_remove(%s, %s::json);
+        select bq_remove(%s, %s::jsonb);
         """, (self.collection_name, json.dumps(query_doc)))
         return result[0][0]
 
@@ -335,7 +335,7 @@ class BedquiltCollection(object):
         """
         assert type(query_doc) is dict
         result = self._query("""
-        select bq_remove_one(%s, %s::json);
+        select bq_remove_one(%s, %s::jsonb);
         """, (self.collection_name, json.dumps(query_doc)))
         return result[0][0]
 
@@ -362,7 +362,7 @@ class BedquiltCollection(object):
         """
         assert type(constraint_spec) is dict
         result = self._query("""
-        select bq_add_constraints(%s, %s::json);
+        select bq_add_constraints(%s, %s::jsonb);
         """, (self.collection_name, json.dumps(constraint_spec)))
         return result[0][0]
 
@@ -386,7 +386,7 @@ class BedquiltCollection(object):
         """
         assert type(constraint_spec) is dict
         result = self._query("""
-        select bq_remove_constraints(%s, %s::json);
+        select bq_remove_constraints(%s, %s::jsonb);
         """, (self.collection_name, json.dumps(constraint_spec)))
         return result[0][0]
 
