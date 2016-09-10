@@ -170,9 +170,9 @@ class BedquiltCollection(object):
         Find documents in collection.
         Args:
           - query_doc: dict representing query.
-          - skip: integer number of documents to skip (default 0).
-          - limit: integer number of documents to limit result set to (default None).
-          - sort: list of dict, representing sort specification.
+          - skip: (optional) integer number of documents to skip (default 0).
+          - limit: (optional) integer number of documents to limit result set to (default None).
+          - sort: (optional) list of dict, representing sort specification.
         Returns: BedquiltCursor
         """
         if query_doc is None:
@@ -193,6 +193,8 @@ class BedquiltCollection(object):
         Find a single document in collection.
         Args:
           - query_doc: dict representing query.
+          - skip: (optional) integer number of documents to skip (default 0).
+          - sort: (optional) list of dict, representing sort specification.
         Returns: A dictionary if found, or None.
         """
         if query_doc is None:
@@ -351,6 +353,20 @@ class BedquiltCollection(object):
         select bq_remove_one_by_id(%s, %s);
         """, (self.collection_name, doc_id))
         return result[0][0]
+
+    def remove_many_by_ids(self, doc_ids):
+        """
+        Remove many documents from the collection, by their `_id` fields
+        Args:
+          - doc_ids: list of strings to match against '_id' fields.
+        Returns: integer number of documents removed.
+        """
+        assert type(doc_ids) == list
+        result = self._query("""
+        select bq_remove_many_by_ids(%s, %s);
+        """, (self.collection_name, json.dumps(doc_ids)))
+        return result[0][0]
+
 
     def add_constraints(self, constraint_spec):
         """
