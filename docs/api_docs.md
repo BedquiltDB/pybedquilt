@@ -1,6 +1,7 @@
 # API Docs
 
 This document describes the Python classes available in the `pybedquilt` module.
+See the [BedquiltDB Guide](https://bedquiltdb.readthedocs.org/en/latest/guide) for more comprehensive documentation of the BedquiltDB system.
 
 ---- ---- ---- ----
 
@@ -156,9 +157,9 @@ This document describes the Python classes available in the `pybedquilt` module.
         Find documents in collection.
         Args:
           - query_doc: dict representing query.
-          - skip: integer number of documents to skip (default 0).
-          - limit: integer number of documents to limit result set to (default None).
-          - sort: list of dict, representing sort specification.
+          - skip: (optional) integer number of documents to skip (default 0).
+          - limit: (optional) integer number of documents to limit result set to (default None).
+          - sort: (optional) list of dict, representing sort specification.
         Returns: BedquiltCursor
         
 ```
@@ -169,10 +170,11 @@ This document describes the Python classes available in the `pybedquilt` module.
 
 ```
 
-        Find several documents in a collection by their `_id` values.
+        Find many documents whose _ids are in the supplied list.
         Args:
-          - ids: list of strings to match against '_id' fields.
-        Returns: An instance of BedquiltCursor
+          - doc_ids: list of strings to match against '_id' fields.
+        Returns: BedquiltCursor
+        Example: collection.find_many_by_ids(['one', 'two', 'four'])
         
 ```
 
@@ -185,6 +187,8 @@ This document describes the Python classes available in the `pybedquilt` module.
         Find a single document in collection.
         Args:
           - query_doc: dict representing query.
+          - skip: (optional) integer number of documents to skip (default 0).
+          - sort: (optional) list of dict, representing sort specification.
         Returns: A dictionary if found, or None.
         
 ```
@@ -250,6 +254,19 @@ This document describes the Python classes available in the `pybedquilt` module.
           - constraint_spec: dict describing constraints to be removed
         Returns: boolean, indicating whether any of the constraint
         rules were removed.
+        
+```
+
+
+
+### remove\_many\_by\_ids
+
+```
+
+        Remove many documents from the collection, by their `_id` fields
+        Args:
+          - doc_ids: list of strings to match against '_id' fields.
+        Returns: integer number of documents removed.
         
 ```
 

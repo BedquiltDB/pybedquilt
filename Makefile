@@ -1,27 +1,31 @@
 # Pybedquilt makefile
 
 
+PYTHON=python
+PYTHON_VERSION=$(shell $(PYTHON) --version)
+
 all: build docs test
 
 
 build:
-	python setup.py bdist_wheel
+	$(PYTHON) setup.py bdist_wheel
 
 
 install:
-	python setup.py install
+	$(PYTHON) setup.py install
 
 
 develop:
-	python setup.py develop
+	$(PYTHON) setup.py develop
 
 
 test: develop
-	python -m unittest discover tests
+	echo ">> Running tests with $(PYTHON_VERSION)"
+	$(PYTHON) -m unittest discover tests
 
 
 docs:
-	python bin/generate_docs.py && mkdocs build --clean
+	$(PYTHON) bin/generate_docs.py && mkdocs build --clean
 
 
 upload: build

@@ -4,6 +4,7 @@ import string
 import psycopg2
 import pybedquilt
 import random
+import time
 
 
 class TestFindDocuments(testutils.BedquiltTestCase):
@@ -16,7 +17,9 @@ class TestFindDocuments(testutils.BedquiltTestCase):
             {},
             {"likes": ["icecream"]},
             {"name": "Mike"},
-            {"_id": "mike"}
+            {"_id": "mike"},
+            {"name": {"$regex": ".*wat.*"}},
+            {"name": {"$noteq": "Mike"}}
         ]
 
         for q in queries:
@@ -51,10 +54,84 @@ class TestFindDocuments(testutils.BedquiltTestCase):
         # find mike
         result = coll.find_one({'name': 'Mike'})
         self.assertEqual(result, mike)
+        result = coll.find_one({'age': {'$eq': 32}})
+        self.assertEqual(result, mike)
 
         # find no-one
         result = coll.find_one({'name': 'XXXXX'})
         self.assertEqual(result, None)
+
+        result = coll.find_one({'name': {'$notin': ['Sarah', 'Mike']}})
+        self.assertEqual(result, None)
+
+    def test_find_one_with_skip_and_sort(self):
+        client = self._get_test_client()
+        coll = client['things']
+
+        rows = [
+            {'_id': 'a', 'n': 3, 'color': 'red'},
+            {'_id': 'b', 'n': 1, 'color': 'red'},
+            {'_id': 'c', 'n': 3, 'color': 'blue'},
+            {'_id': 'd', 'n': 2, 'color': 'blue'}
+        ]
+        for row in rows:
+            coll.save(row)
+
+        result = coll.find_one({'color': 'blue'}, sort=[{'n': 1}])
+        self.assertEqual(result['_id'], 'd')
+
+        result = coll.find_one({'color': 'blue'}, sort=[{'n': 1}], skip=1)
+        self.assertEqual(result['_id'], 'c')
+
+        result = coll.find_one({'color': 'blue'}, sort=[{'n': 1}], skip=2)
+        self.assertEqual(result, None)
+
+        result = coll.find_one({'color': 'blue'}, sort=[{'n': -1}])
+        self.assertEqual(result['_id'], 'c')
+
+        result = coll.find_one({}, sort=[{'n': 1}])
+        self.assertEqual(result['_id'], 'b')
+
+    def test_find_special_queries(self):
+        client = self._get_test_client()
+        coll = client['things']
+
+        rows = [
+            {'_id': 'a', 'n': 3, 'color': 'red'},
+            {'_id': 'b', 'n': 1, 'color': 'red'},
+            {'_id': 'c', 'n': 3, 'color': 'blue'},
+            {'_id': 'd', 'n': 2, 'color': 'blue'}
+        ]
+        for row in rows:
+            coll.save(row)
+
+        result = coll.find_one({'color': 'blue', 'n': {'$gt': 2}})
+        self.assertEqual(result['_id'], 'c')
+
+        result = list(coll.find({'color': {'$regex': 'bl.*'}}))
+        self.assertEqual(len(result), 2)
+        self.assertEqual(list(map(lambda d: d['_id'], result)), ['c', 'd'])
+
+        result = coll.count({'color': {'$type': 'number'}})
+        self.assertEqual(result, 0)
+
+    def test_find_many_by_ids(self):
+        client = self._get_test_client()
+        coll = client['things']
+        rows = [
+            {'_id': 'a'},
+            {'_id': 'b'},
+            {'_id': 'c'},
+            {'_id': 'd'}
+        ]
+        for row in rows:
+            coll.insert(row)
+
+        result = list(coll.find_many_by_ids(['b', 'c', 'wat']))
+        self.assertEqual(list(map(lambda r: r['_id'], result)), ['b', 'c'])
+
+        result = list(coll.find_many_by_ids(['wat']))
+        self.assertEqual(list(map(lambda r: r['_id'], result)), [])
 
     def test_find_one_by_id(self):
         client = self._get_test_client()
@@ -149,7 +226,7 @@ class TestFindDocuments(testutils.BedquiltTestCase):
                 'age': 32,
                 'likes': ['code', 'crochet']}
         darren = {'_id': "darren@example.com",
-                'name': "Darren",
+                'name': "Darren O'Reilly",
                 'city': "Manchester"}
 
         coll.insert(sarah)
@@ -173,6 +250,9 @@ class TestFindDocuments(testutils.BedquiltTestCase):
 
         result = coll.find({'city': 'New York'})
         self.assertEqual(list(result), [])
+
+        result = coll.find({'name': "Darren O'Reilly"})
+        self.assertEqual(list(result), [darren])
 
         # find all
         result = list(coll.find())
@@ -309,23 +389,46 @@ class TestFindWithSort(testutils.BedquiltTestCase):
 
         # age ascending, name ascending
         result = coll.find(sort=[{'age': 1}, {'name': 1}])
-        names = map(lambda x: x['name'], result)
+        names = list(map(lambda x: x['name'], result))
         self.assertEqual(names, ['Darren', 'Jill', 'Mike', 'Sarah'])
 
         # age descending, name ascending
         result = coll.find(sort=[{'age': -1}, {'name': 1}])
-        names = map(lambda x: x['name'], result)
+        names = list(map(lambda x: x['name'], result))
         self.assertEqual(names, ['Sarah', 'Jill', 'Mike', 'Darren'])
 
         # age ascending, name descending
         result = coll.find(sort=[{'age': 1}, {'name': -1}])
-        names = map(lambda x: x['name'], result)
+        names = list(map(lambda x: x['name'], result))
         self.assertEqual(names, ['Darren', 'Mike', 'Jill', 'Sarah'])
 
         # age descending, name descending
         result = coll.find(sort=[{'age': -1}, {'name': -1}])
-        names = map(lambda x: x['name'], result)
+        names = list(map(lambda x: x['name'], result))
         self.assertEqual(names, ['Sarah', 'Mike', 'Jill', 'Darren'])
+
+        # age, then $created
+        result = coll.find(sort=[{'age': 1}, {'$created': 1}])
+        names = list(map(lambda x: x['name'], result))
+        self.assertEqual(names, ['Darren', 'Mike', 'Jill', 'Sarah'])
+
+        # age, then $created descending
+        result = coll.find(sort=[{'age': 1}, {'$created': -1}])
+        names = list(map(lambda x: x['name'], result))
+        self.assertEqual(names, ['Darren', 'Jill', 'Mike', 'Sarah'])
+
+        # age, then $updated descending
+        result = coll.find(sort=[{'age': 1}, {'$updated': -1}])
+        names = list(map(lambda x: x['name'], result))
+        self.assertEqual(names, ['Darren', 'Jill', 'Mike', 'Sarah'])
+        # update mike record
+        mike['wat'] = True
+        time.sleep(0.1)
+        coll.save(mike)
+        result = coll.find(sort=[{'age': 1}, {'$updated': -1}])
+        names = list(map(lambda x: x['name'], result))
+        self.assertEqual(names, ['Darren', 'Mike', 'Jill', 'Sarah'])
+
 
     def test_find_existing_documents_with_sort(self):
         client = self._get_test_client()
@@ -351,44 +454,44 @@ class TestFindWithSort(testutils.BedquiltTestCase):
 
         # with sort ascending on n
         result = coll.find(sort=[{'n': 1}])
-        nums = map(lambda x: x['n'], result)
+        nums = list(map(lambda x: x['n'], result))
         self.assertEqual(nums, sorted(nums))
 
         # with sort descending on n
         result = coll.find(sort=[{'n': -1}])
-        nums = map(lambda x: x['n'], result)
+        nums = list(map(lambda x: x['n'], result))
         self.assertEqual(nums, sorted(nums, reverse=True))
 
         # ascending, skip 2, limit 5
         result = coll.find(sort=[{'n': 1}], skip=2, limit=5)
-        nums = map(lambda x: x['n'], result)
+        nums = list(map(lambda x: x['n'], result))
         self.assertEqual(nums, [
             2, 3, 4, 5, 6
         ])
 
         # descending, skip 2, limit 5
         result = coll.find(sort=[{'n': -1}], skip=2, limit=5)
-        nums = map(lambda x: x['n'], result)
+        nums = list(map(lambda x: x['n'], result))
         self.assertEqual(nums, [
             97, 96, 95, 94, 93
         ])
 
         # descending, no skip, limit 3
         result = coll.find(sort=[{'n': -1}], limit=3)
-        nums = map(lambda x: x['n'], result)
+        nums = list(map(lambda x: x['n'], result))
         self.assertEqual(nums, [
             99, 98, 97
         ])
 
         # only blue, ascending
         result = coll.find({'color': 'blue'}, sort=[{'n': 1}])
-        nums = map(lambda x: x['n'], result)
+        nums = list(map(lambda x: x['n'], result))
         self.assertEqual(nums, sorted(nums))
         self.assertEqual(len(nums), 50)
 
         # only blue, descecnding, skip 10, limit 2
         result = coll.find(sort=[{'n': -1}], skip=10, limit=2)
-        nums = map(lambda x: x['n'], result)
+        nums = list(map(lambda x: x['n'], result))
         self.assertEqual(nums, [
             89, 88
         ])

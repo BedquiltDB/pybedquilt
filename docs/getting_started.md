@@ -13,7 +13,11 @@ CREATE EXTENSION bedquilt;
 
 Then, install the pybedquilt libary:
 ```
+# python2
 $ pip install pybedquilt
+
+# python3
+$ pip3 install pybedquilt
 ```
 
 
@@ -258,3 +262,19 @@ people.remove({'cool': False})
 people.remove_one({'likes': ['cabbage']})
 people.remove_one_by_id('magic_man@example.com')
 ```
+
+
+## Using Raw SQL
+
+The BedquiltClient object has a `connection` property, which is a [psycopg2](http://pythonhosted.org/psycopg2/index.html) connection (spoiler warning: pybedquilt uses psycopg2 internally). You can use the connection to execute arbitrary SQL commands:
+
+```
+cur = client.connection.cursor()
+cur.execute("select 1;")
+cur.fetchall()  # => [(1,)]
+
+cur.execute("select bq_find_one_by_id('users', 'joe@example.com')")
+cur.fetchall()  # => [('{"_id": "joe@example.com", ...}')]
+```
+
+Alternatively, you can `import psycopg2` yourself and use the same connection string as you used to build the `BedquiltClient` instance.

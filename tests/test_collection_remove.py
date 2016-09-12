@@ -244,3 +244,62 @@ class TestRemoveDocumnts(testutils.BedquiltTestCase):
                              mike,
                              darren
                          ])
+
+    def test_remove_many_by_ids(self):
+        client = self._get_test_client()
+        coll = client['people']
+
+        sarah = {'_id': "sarah@example.com",
+                 'name': "Sarah",
+                 'city': "Glasgow",
+                 'age': 34,
+                 'likes': ['icecream', 'cats']}
+        mike = {'_id': "mike@example.com",
+                'name': "Mike",
+                'city': "Edinburgh",
+                'age': 32,
+                'likes': ['cats', 'crochet']}
+        jill = {'_id': "jill@example.com",
+                'name': "Jill",
+                'city': "Glasgow",
+                'age': 32,
+                'likes': ['code', 'crochet']}
+        darren = {'_id': "darren@example.com",
+                'name': "Darren",
+                'city': "Manchester"}
+
+        coll.insert(sarah)
+        coll.insert(mike)
+        coll.insert(jill)
+        coll.insert(darren)
+
+        # remove existing documents
+        result = coll.remove_many_by_ids(['jill@example.com', 'darren@example.com'])
+        self.assertEqual(result, 2)
+
+        result = list(coll.find({}))
+        self.assertEqual(result,
+                         [
+                             sarah,
+                             mike,
+                         ])
+
+        # remove documents which are not in collection
+        result = coll.remove_many_by_ids(['jill@example.com', 'darren@example.com'])
+        self.assertEqual(result, 0)
+
+        result = list(coll.find({}))
+        self.assertEqual(result,
+                         [
+                             sarah,
+                             mike,
+                         ])
+
+        result = coll.remove_many_by_ids(['sarah@example.com'])
+        self.assertEqual(result, 1)
+
+        result = list(coll.find({}))
+        self.assertEqual(result,
+                         [
+                             mike
+                         ])

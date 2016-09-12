@@ -1,8 +1,9 @@
 import psycopg2
 import json
+import six
 
 
-MIN_SERVER_VERSION = '0.6.0'
+MIN_SERVER_VERSION = '2.0.0'
 
 
 def _query(cursor, query_string, params=None):
@@ -29,6 +30,13 @@ class BedquiltCursor(object):
         else:
             raise StopIteration
 
+    def __next__(self):
+        n = self.cursor.fetchone()
+        if n:
+            return _unpack_row(n)
+        else:
+            raise StopIteration
+
 
 class BedquiltClient(object):
 
@@ -45,7 +53,7 @@ class BedquiltClient(object):
         if (connection is not None
             and isinstance(connection, psycopg2._psycopg.connection)):
             self.connection = connection
-        elif dsn is not None and type(dsn) in {str, unicode}:
+        elif dsn is not None and isinstance(dsn, six.string_types):
             self.connection = psycopg2.connect(dsn)
         elif kwargs:
             self.connection = psycopg2.connect(**kwargs)
@@ -73,7 +81,7 @@ class BedquiltClient(object):
             "Bedquilt extension not found on database server"
 
         cursor.execute("""
-        select bq_assert_minimum_version('{}')
+        select bq_util_assert_minimum_version('{}')
         """.format(MIN_SERVER_VERSION))
         _ = cursor.fetchall()
 
@@ -113,7 +121,7 @@ class BedquiltClient(object):
         select bq_list_collections();
         """)
 
-        return map(lambda r: r[0], result)
+        return list(map(lambda r: r[0], result))
 
     def collection_exists(self, collection_name):
         """
@@ -162,9 +170,9 @@ class BedquiltCollection(object):
         Find documents in collection.
         Args:
           - query_doc: dict representing query.
-          - skip: integer number of documents to skip (default 0).
-          - limit: integer number of documents to limit result set to (default None).
-          - sort: list of dict, representing sort specification.
+          - skip: (optional) integer number of documents to skip (default 0).
+          - limit: (optional) integer number of documents to limit result set to (default None).
+          - sort: (optional) list of dict, representing sort specification.
         Returns: BedquiltCursor
         """
         if query_doc is None:
@@ -176,24 +184,31 @@ class BedquiltCollection(object):
             sort = json.dumps(sort)
 
         return BedquiltCursor(self, """
-        select bq_find(%s, %s::json, %s, %s, %s::json);
+        select bq_find(%s, %s::jsonb, %s, %s, %s::jsonb);
         """, (self.collection_name, json.dumps(query_doc),
               skip, limit, sort))
 
-    def find_one(self, query_doc=None):
+    def find_one(self, query_doc=None, skip=0, sort=None):
         """
         Find a single document in collection.
         Args:
           - query_doc: dict representing query.
+          - skip: (optional) integer number of documents to skip (default 0).
+          - sort: (optional) list of dict, representing sort specification.
         Returns: A dictionary if found, or None.
         """
         if query_doc is None:
             query_doc = {}
         assert type(query_doc) is dict
 
+        if sort is not None:
+            assert type(sort) is list
+            sort = json.dumps(sort)
+
         result = self._query("""
-        select bq_find_one(%s, %s::json);
-        """, (self.collection_name, json.dumps(query_doc)))
+        select bq_find_one(%s, %s::jsonb, %s, %s::jsonb);
+        """, (self.collection_name, json.dumps(query_doc),
+              skip, sort))
 
         if len(result) == 1:
             return _unpack_row(result[0])
@@ -208,7 +223,7 @@ class BedquiltCollection(object):
         Returns: A dictionary if found, or None.
         """
 
-        assert type(doc_id) in {str, unicode}
+        assert isinstance(doc_id, six.string_types)
 
         result = self._query("""
         select bq_find_one_by_id(%s, %s);
@@ -219,18 +234,19 @@ class BedquiltCollection(object):
         else:
             return None
 
-    def find_many_by_ids(self, ids):
+    def find_many_by_ids(self, doc_ids):
         """
-        Find several documents in a collection by their `_id` values.
+        Find many documents whose _ids are in the supplied list.
         Args:
-          - ids: list of strings to match against '_id' fields.
-        Returns: An instance of BedquiltCursor
+          - doc_ids: list of strings to match against '_id' fields.
+        Returns: BedquiltCursor
+        Example: collection.find_many_by_ids(['one', 'two', 'four'])
         """
-        assert type(ids) in {list}
+        assert type(doc_ids) == list
 
         return BedquiltCursor(self, """
-        select bq_find_many_by_ids(%s, %s::jsonb);
-        """, (self.collection_name, json.dumps(ids)))
+        select bq_find_many_by_ids(%s, %s::jsonb)
+        """, (self.collection_name, json.dumps(doc_ids)))
 
     def count(self, query_doc=None):
         """
@@ -261,7 +277,7 @@ class BedquiltCollection(object):
         Returns: BedquiltCursor
         Example: collection.distinct('address.city')
         """
-        assert type(key_path) in {str, unicode}
+        assert isinstance(key_path, six.string_types)
 
         return BedquiltCursor(self, """
         select bq_distinct(%s, %s);
@@ -277,7 +293,7 @@ class BedquiltCollection(object):
         """
         assert type(doc) is dict
         result = self._query("""
-        select bq_insert(%s, %s::json);
+        select bq_insert(%s, %s::jsonb);
         """, (self.collection_name, json.dumps(doc)))
         return result[0][0]
 
@@ -293,7 +309,7 @@ class BedquiltCollection(object):
         """
         assert type(doc) is dict
         result = self._query("""
-        select bq_save(%s, %s::json);
+        select bq_save(%s, %s::jsonb);
         """, (self.collection_name, json.dumps(doc)))
         return result[0][0]
 
@@ -307,7 +323,7 @@ class BedquiltCollection(object):
         """
         assert type(query_doc) is dict
         result = self._query("""
-        select bq_remove(%s, %s::json);
+        select bq_remove(%s, %s::jsonb);
         """, (self.collection_name, json.dumps(query_doc)))
         return result[0][0]
 
@@ -321,7 +337,7 @@ class BedquiltCollection(object):
         """
         assert type(query_doc) is dict
         result = self._query("""
-        select bq_remove_one(%s, %s::json);
+        select bq_remove_one(%s, %s::jsonb);
         """, (self.collection_name, json.dumps(query_doc)))
         return result[0][0]
 
@@ -332,11 +348,25 @@ class BedquiltCollection(object):
           - doc_id: string _id of the document to remove.
         Returns: integer number of documents removed.
         """
-        assert type(doc_id) in {str, unicode}
+        assert isinstance(doc_id, six.string_types)
         result = self._query("""
         select bq_remove_one_by_id(%s, %s);
         """, (self.collection_name, doc_id))
         return result[0][0]
+
+    def remove_many_by_ids(self, doc_ids):
+        """
+        Remove many documents from the collection, by their `_id` fields
+        Args:
+          - doc_ids: list of strings to match against '_id' fields.
+        Returns: integer number of documents removed.
+        """
+        assert type(doc_ids) == list
+        result = self._query("""
+        select bq_remove_many_by_ids(%s, %s);
+        """, (self.collection_name, json.dumps(doc_ids)))
+        return result[0][0]
+
 
     def add_constraints(self, constraint_spec):
         """
@@ -348,7 +378,7 @@ class BedquiltCollection(object):
         """
         assert type(constraint_spec) is dict
         result = self._query("""
-        select bq_add_constraints(%s, %s::json);
+        select bq_add_constraints(%s, %s::jsonb);
         """, (self.collection_name, json.dumps(constraint_spec)))
         return result[0][0]
 
@@ -360,7 +390,7 @@ class BedquiltCollection(object):
         result = self._query("""
         select bq_list_constraints(%s);
         """, (self.collection_name,))
-        return map(lambda r: r[0], result)
+        return list(map(lambda r: r[0], result))
 
     def remove_constraints(self, constraint_spec):
         """
@@ -372,7 +402,7 @@ class BedquiltCollection(object):
         """
         assert type(constraint_spec) is dict
         result = self._query("""
-        select bq_remove_constraints(%s, %s::json);
+        select bq_remove_constraints(%s, %s::jsonb);
         """, (self.collection_name, json.dumps(constraint_spec)))
         return result[0][0]
 
