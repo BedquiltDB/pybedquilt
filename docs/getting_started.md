@@ -150,6 +150,7 @@ python `list` function on the cursor and see what happens:
 ```
 >>> list( people.find({'city': "Edinburgh"}) )
 [{'_id': 'sarah@example.com', ....}, {'_id': 'cabb5c9f6a55ecdebbc42c69', ...}]
+>>> list( people.find({'city': {'$noteq': 'Glasgow'}}))
 ```
 
 In this case we get a list of two documents back, corresponding to the two
